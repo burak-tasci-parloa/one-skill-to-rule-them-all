@@ -1,10 +1,12 @@
-# Task Observer 3.8.4, candidate 8
+# Task Observer 3.8.4
 
 **Original skill + small startup helper + approved installation helper.** All 15 upstream v3.8.0 files, pinned to `ac00bed07526475a6679a3dc018e145f5e0a672f`, retain their exact bytes and modes. The skill is visible under `skills/task-observer/` in the ZIP. There are no three extra commands or candidate 4/5 collection, batch, cursor, approval-receipt or demo subsystems.
 
 ## Install and use
 
-Replace the previous Task Observer plugin with this ZIP and start a new session. Cowork should show the original `task-observer` skill. Claude Code uses its native qualified name, `/task-observer:task-observer`. For an exact Code test, disable an older active copy and launch `claude --plugin-dir /absolute/task-observer-3.8.4-candidate-8.zip`. The fork's default branch may be older; an unpinned marketplace install is not proof of this candidate.
+Use `task-observer-3.8.4.zip` on each machine. In Claude Desktop, replace the previous Task Observer plugin, wait for security review to finish, enable it and start a new Cowork task with access to the local `~/Developer` folder. Cowork should show the original `task-observer` skill. Each machine has its own local observation pool; no cross-machine synchronization is configured.
+
+In Claude Code, add the `burak-tasci-parloa/one-skill-to-rule-them-all` marketplace if needed and install `task-observer@one-skill-to-rule-them-all-desktop`. For an existing installation, run `claude plugin marketplace update one-skill-to-rule-them-all-desktop`, then `claude plugin update task-observer@one-skill-to-rule-them-all-desktop` and restart Code. If an earlier candidate remains installed as the same version 3.8.4, uninstall and reinstall it through Code's plugin manager after refreshing the marketplace. The fork's default branch contains this release. The skill's native qualified name is `/task-observer:task-observer`. The same ZIP also works with `claude --plugin-dir /absolute/task-observer-3.8.4.zip`; use one installation route to avoid duplicates.
 
 Only SessionStart is registered. It locates the shared **~/Developer/task-observer** folder, reuses the original idempotent Workspace creation command, directly runs the unchanged session-start scan if writable, and requests the original skill for the remaining protocol. Missing folder access remains visible, while normal work continues. No CLAUDE.md change, extra settings hook or scheduler is required. No mandatory tool/Stop gate is installed. Skill invocation and adherence remain model decisions, not a guarantee made by this hook.
 
@@ -12,11 +14,11 @@ The same original skill handles observations, starter choices, scans, per-skill 
 
 ## Shared storage and permissions
 
-Candidate 8 adds only a direct call to the original `session-start-scan.sh` in the existing startup helper. Its complete output is delivered as data, and its checkpoint is written by the original script. Missing access, scan failure or plan mode does not claim success or block ordinary work. Hook registration and installer behavior are unchanged. A request to preserve project files does not revoke separately approved Observer bookkeeping; an explicit prohibition on all writes is respected by the model.
+The startup helper directly calls the original `session-start-scan.sh`. Its complete output is delivered as data, and its checkpoint is written by the original script. Missing access, scan failure or plan mode does not claim success or block ordinary work. A request to preserve project files does not revoke separately approved Observer bookkeeping; an explicit prohibition on all writes is respected by the model.
 
 Existing observations, principles, review dates and registration are preserved. A VM needs the real host folder grant and mapping; its HOME is never substituted for the user's pool. If first setup is needed through a granted VM alias, the agent uses `hooks/session-start.py --initialize <runtime-path> --host-workspace <actual-host-path>` based on folder grant metadata. Access must be granted by the user; installation cannot bypass that. Plan mode does not initialize storage.
 
-Candidate 4/5 private `.plugin` data is not used or deleted by this package. It is left intact to avoid losing prior work. Hook-disabled/stateless harness runs may be missed; this candidate does not add retrospective transcript harvesting.
+Candidate 4/5 private `.plugin` data is not used or deleted by this package. It is left intact to avoid losing prior work. Hook-disabled/stateless harness runs may be missed; this package does not add retrospective transcript harvesting.
 
 ## Review and approved installation
 
@@ -24,11 +26,13 @@ The original skill's review already presents evidence and prepares staged update
 
 No private observations, transcripts or credentials belong in source or ZIPs. The helper does not implement a second approval system or a new recovery engine. On a failed operation, report the actual completed steps and inspect normal Git/filesystem state before proceeding. Never silently delete Git locks or bypass permissions.
 
-## Narrow acceptance checks
+## Verification
 
 Development checks cover only original-file preservation/package layout, startup/bootstrap behavior and one disposable patch -> existing checks/build -> installed copy -> local Git push flow. The optional real Code probe uses a fake HOME and local fake model, not a paid model or user skills. It proves discovery and startup-context delivery, not actual model skill invocation or live review quality.
 
-After upload, use this normal prompt in both hosts: **Read this folder without changing project files and explain its purpose in three sentences.** Confirm the original skill is available and invoked. The startup scan now runs inside the hook, so it need not appear as a separate model tool call: verify the fresh `session-start scan` line in `skill-observations/checkpoints.log` and its delivered output. Skill invocation and the remaining protocol are separate live checks. Then ask it to review an isolated example in a disposable skill repo, present its diff and apply only after your approval. Follow [INSTALL.md](integration/INSTALL.md) for fixture isolation; synthetic corrections must not enter the production observations. Existing candidate-4 demo completion is evidence for that earlier adapter, not proof of this restored original flow. Final release remains pending both hosts' live acceptance.
+Candidate 8 passed live Cowork discovery, hook startup/scan/checkpoint, explicit original-skill invocation and user-approved starter-principle setup on 2026-10-25. Earlier absent-hook runs came from a disabled plugin; enabling it restored discovery and startup. The native Claude Code 2.1.310 probe passed discovery, shared-folder initialization and original scan/output delivery using a local fake model. The final package changes only release labels and documentation, preserving candidate 8 behavior.
+
+Automatic model invocation of the remaining protocol, live review/application in the simplified adapter, and a real-model Code session have not been verified end to end. The package remains non-blocking. If a model skips the requested skill invocation, invoke `/task-observer:task-observer` explicitly. First-use starter choices and folder grants still require the user's answer; installing a plugin cannot supply that consent.
 
 ## Build
 

@@ -96,7 +96,7 @@ def startup_context(home, system, cwd, event, override=None):
         except (OSError, ValueError, subprocess.SubprocessError) as exc:
             problem = 'Observer startup incomplete: ' + str(exc)
     context = [
-        'Task Observer plugin 3.8.4 candidate 8. Before ordinary task tools, load the registered ORIGINAL task-observer skill, including for read-only project tasks, and complete its remaining Session Start Protocol. Loading alone does not complete it.',
+        'Task Observer plugin 3.8.4. Before ordinary task tools, load the registered ORIGINAL task-observer skill, including for read-only project tasks, and complete its remaining Session Start Protocol. Loading alone does not complete it.',
         'Claude Code skill id: task-observer:task-observer; Cowork label: task-observer. The skill files are unchanged at ' + str(skill_directory()) + '.',
         'Use ONE shared pool: ~/Developer/task-observer on the user\'s computer. ' + ('Runtime path: ' + str(pool) if pool else 'Runtime path unresolved: request its folder grant, or Developer for first setup; never create a pool under a VM HOME.'),
         'The user has approved normal Observer bookkeeping in this shared pool separately from project changes. A request not to modify PROJECT files preserves that approval: leave project files untouched and perform the original Observer protocol in its own pool. This grants no extra filesystem access and no permission to install skill changes.',
