@@ -40,7 +40,7 @@ def probe(binary, plugin):
     thread.start()
     try:
         with tempfile.TemporaryDirectory(prefix='observer-real-cli-fake-model-') as temp:
-            home = Path(temp) / 'home'
+            home = (Path(temp) / 'home').resolve()
             cwd = home / 'project'
             cwd.mkdir(parents=True)
             env = {k: os.environ[k] for k in ['PATH', 'TMPDIR', 'LANG', 'SHELL'] if k in os.environ}
@@ -61,19 +61,22 @@ def probe(binary, plugin):
                     pass
             init = next((e for e in events if e.get('type') == 'system' and e.get('subtype') == 'init'), {})
             names = init.get('slash_commands', [])
-            expected = {'task-observer:task-observer-review', 'task-observer:task-observer-apply', 'task-observer:task-observer-status'}
-            assert expected.issubset(set(names)), {'missing_commands': sorted(expected - set(names)), 'stderr': result.stderr[-2000:]}
-            assert 'task-observer:task-observer' not in names, 'upstream live protocol was exposed'
-            assert result.returncode == 0, {'code': result.returncode, 'stderr': result.stderr[-2000:], 'last_event': events[-1] if events else None}
+            expected = 'task-observer:task-observer'
+            assert expected in names, {'missing_skill': expected, 'stderr': result.stderr[-2000:]}
+            assert not any(name.startswith('task-observer:') and name != expected for name in names), names
+            assert result.returncode == 0, {'code': result.returncode, 'stderr': result.stderr[-2000:]}
             assert requests, 'no local fake-model request received'
-            assert 'Monitors task execution for skill improvement' not in json.dumps(requests), 'broad live activation metadata leaked into ordinary work'
+            serialized = json.dumps(requests)
+            assert 'Load the registered ORIGINAL task-observer skill' in serialized, 'startup context missing'
+            assert 'Monitors task execution for skill improvement' in serialized, 'original skill metadata missing'
             pool = home / 'Developer/task-observer'
-            source_records = list((pool / 'skill-observations/.plugin/sources').glob('*.json'))
-            assert source_records, 'native passive hook did not register a source'
-            return {'runtime': init.get('claude_code_version'), 'commands_discovered': sorted(expected),
-                    'ordinary_response': 'READY', 'source_pointer_written': True,
-                    'original_live_protocol_not_exposed': True, 'model': 'local fake HTTP server; no real model/API billing',
-                    'human_approval_tested': False, 'real_model_review_tested': False}
+            assert (pool / 'skill-observations/observation-log').is_dir(), 'bootstrap did not run'
+            assert not (pool / 'skill-observations/.plugin').exists(), 'old collection state was created'
+            return {'runtime': init.get('claude_code_version'), 'skill_discovered': expected,
+                    'extra_observer_commands': [], 'startup_context_delivered': True,
+                    'workspace_initialized': True, 'model': 'local fake HTTP server; no real model/API billing',
+                    'actual_model_skill_invocation_tested': False, 'human_approval_tested': False,
+                    'real_model_review_tested': False}
     finally:
         server.shutdown()
         server.server_close()

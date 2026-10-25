@@ -14,7 +14,7 @@ import zipfile
 from urllib.parse import unquote, urlsplit
 
 PLUGIN = "task-observer"
-SKILL_PREFIX = f"upstream/{PLUGIN}/"
+SKILL_PREFIX = f"skills/{PLUGIN}/"
 ALLOWED_KEYS = {"name", "displayName", "description", "version", "author",
                 "homepage", "repository", "license", "keywords", "skills"}
 EXCLUDED = {".git", "__pycache__", ".DS_Store"}
@@ -63,26 +63,23 @@ def expected_members(repo):
     if manifest.get("name") != PLUGIN:
         raise ValueError("Unexpected plugin identity")
     verify_upstream_skill(repo)
-    manifest["skills"] = []  # Original metadata must not activate a live-session protocol.
+    manifest["skills"] = ["./skills/task-observer/"]
     members = {
         ".claude-plugin/plugin.json": ((json.dumps(manifest, indent=2) + "\n").encode(), 0o644),
         "README.md": ((repo / "DESKTOP-PLUGIN.md").read_bytes(), 0o644),
         "LICENSE": ((repo / "LICENSE").read_bytes(), 0o644),
         "upstream-skill.json": ((repo / "upstream-skill.json").read_bytes(), 0o644),
     }
-    for item in sorted(p for folder in ['hooks', 'integration', 'commands'] for p in (repo / folder).rglob('*')):
+    for item in sorted(p for folder in ['hooks', 'integration'] for p in (repo / folder).rglob('*')):
         if item.is_symlink():
             raise ValueError(f"Symlink in source: {item}")
         if item.is_file() and not any(p in EXCLUDED for p in item.relative_to(repo).parts) and item.suffix != ".pyc":
             mode = 0o755 if item.stat().st_mode & 0o111 else 0o644
             members[item.relative_to(repo).as_posix()] = (item.read_bytes(), mode)
     for required in ["hooks/hooks.json", "hooks/session-start.sh", "hooks/session-start.py",
-                     "integration/observer.sh", "integration/observer.py", "integration/common.py",
-                     "integration/collector.py", "integration/installer.py", "integration/WORKFLOW.md",
-                     "integration/demo.py",
-                     "commands/task-observer-review.md", "commands/task-observer-apply.md", "commands/task-observer-status.md"]:
+                     "integration/install.py", "integration/INSTALL.md"]:
         if required not in members:
-            raise ValueError(f"Missing startup integration: {required}")
+            raise ValueError(f"Missing integration file: {required}")
     sources = [repo / "SKILL.md", repo / "LICENSE"]
     for folder in [repo / "references", repo / "scripts"]:
         for item in sorted(folder.rglob("*")):
@@ -143,7 +140,7 @@ def build(repo, output=None):
             target.write_bytes(data)
             target.chmod(mode)
         subprocess.run([sys.executable, str(repo / "scripts/validate-skill-bundle.py"),
-                        str(fresh / "upstream" / PLUGIN)], check=True)
+                        str(fresh / "skills" / PLUGIN)], check=True)
         archive = output / f"{PLUGIN}.zip"
         with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
             for name, (data, mode) in sorted(members.items()):

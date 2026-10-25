@@ -1,9 +1,11 @@
 {
   "name": "task-observer",
   "displayName": "Task Observer \u2014 One Skill to Rule Them All",
-  "description": "Candidate 5: passive work evidence collection, explicit original-method review and approval-bound source/install/Git/ZIP updates.",
+  "description": "Candidate 6: unchanged Task Observer skill, a SessionStart bootstrap and a small approved-install helper.",
   "version": "3.8.4",
-  "skills": [],
+  "skills": [
+    "./"
+  ],
   "author": {
     "name": "Eoghan Henn",
     "url": "https://rebelytics.com"

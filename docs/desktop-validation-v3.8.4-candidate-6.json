@@ -1,0 +1,41 @@
+{
+  "plugin": "task-observer",
+  "version": "3.8.4",
+  "candidate": 6,
+  "archive": "task-observer-3.8.4-candidate-6.zip",
+  "sha256": "eff45fc71141cb26857ae3b872b51d327b5332ce55534a502b8aaf2151c74dac",
+  "upstream": {
+    "version": "3.8.0",
+    "commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+    "files": 15,
+    "exact_bytes_and_modes": true
+  },
+  "structure": {
+    "visible_original_skill": true,
+    "custom_commands": 0,
+    "hooks": [
+      "SessionStart"
+    ],
+    "transcript_collector": false,
+    "batch_cursor_approval_receipts": false,
+    "scheduler": false
+  },
+  "critical_tests": {
+    "passed": 4,
+    "seconds": 1.59
+  },
+  "strict_upload_validation": true,
+  "native_zip_probe": {
+    "runtime": "2.1.310",
+    "skill_discovered": "task-observer:task-observer",
+    "extra_observer_commands": [],
+    "startup_context_delivered": true,
+    "workspace_initialized": true,
+    "model": "local fake HTTP server; no real model/API billing",
+    "actual_model_skill_invocation_tested": false,
+    "human_approval_tested": false,
+    "real_model_review_tested": false
+  },
+  "live_cowork_and_code_model_acceptance": "pending; fake model probe is not live skill invocation/review approval",
+  "final_release_published": false
+}

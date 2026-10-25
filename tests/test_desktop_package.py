@@ -1,7 +1,6 @@
-"""Checks protect Desktop upload compatibility and complete skill delivery."""
+"""Four critical candidate-6 checks; all writes use disposable fixtures."""
 import importlib.util
 import json
-import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -11,172 +10,102 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("desktop_builder", ROOT / "tools/build_desktop_plugin.py")
-builder = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(builder)
 
 
-class DesktopPackageTests(unittest.TestCase):
+def module(name, path):
+    spec = importlib.util.spec_from_file_location(name, ROOT / path)
+    value = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(value)
+    return value
+
+
+builder = module('builder', 'tools/build_desktop_plugin.py')
+startup = module('startup', 'hooks/session-start.py')
+installer = module('installer', 'integration/install.py')
+
+
+class CriticalFlowTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="task-observer-package-")
+        self.temp = tempfile.TemporaryDirectory(prefix='observer-candidate-6-')
         self.addCleanup(self.temp.cleanup)
-        self.repo = Path(self.temp.name) / "source"
-        self.repo.mkdir()
-        for name in [".claude-plugin", "references", "scripts", "hooks", "integration", "commands"]:
-            shutil.copytree(ROOT / name, self.repo / name)
-        for name in ["SKILL.md", "LICENSE", "DESKTOP-PLUGIN.md", "upstream-skill.json"]:
-            shutil.copy2(ROOT / name, self.repo / name)
+        self.base = Path(self.temp.name).resolve()
+        self.home = self.base / 'home'
+        self.home.mkdir()
 
-    def build(self):
-        return builder.build(self.repo)
+    def test_original_skill_visible_no_three_commands_or_old_collector(self):
+        result = builder.build(ROOT, self.base / 'build')
+        self.assertTrue(builder.verify_upstream_skill(ROOT)['all_files_byte_identical'])
+        with zipfile.ZipFile(self.base / 'build/task-observer.zip') as z:
+            names = z.namelist()
+            self.assertEqual(json.loads(z.read('.claude-plugin/plugin.json'))['skills'], ['./skills/task-observer/'])
+            self.assertFalse(any(n.startswith('commands/') or n.startswith('upstream/') for n in names))
+            self.assertNotIn('integration/collector.py', names)
+            self.assertNotIn('integration/observer.py', names)
+            self.assertEqual(set(json.loads(z.read('hooks/hooks.json'))['hooks']), {'SessionStart'})
+            for name in json.loads((ROOT / 'upstream-skill.json').read_text())['files']:
+                self.assertEqual(z.read('skills/task-observer/' + name), (ROOT / name).read_bytes())
+        self.assertEqual(result['files'], len(names))
 
-    def test_layout_complete_resources_and_reproducible_bytes(self):
-        self.build()
-        archive = self.repo / "dist/task-observer.zip"
-        first = archive.read_bytes()
-        with zipfile.ZipFile(archive) as bundle:
-            manifest = json.loads(bundle.read(".claude-plugin/plugin.json"))
-            self.assertNotIn("$schema", manifest)
-            self.assertEqual(manifest["skills"], [])
-            self.assertIn("upstream/task-observer/SKILL.md", bundle.namelist())
-            self.assertNotIn("SKILL.md", bundle.namelist())
-            hooks = json.loads(bundle.read("hooks/hooks.json"))["hooks"]
-            self.assertEqual(set(hooks), {"SessionStart", "UserPromptSubmit", "Stop", "PostToolUse"})
-            self.assertTrue(hooks["Stop"][0]["hooks"][0]["async"])
-            self.assertNotIn("PreToolUse", hooks)
-            self.assertIn("commands/task-observer-review.md", bundle.namelist())
-            self.assertIn("commands/task-observer-apply.md", bundle.namelist())
-            self.assertIn("commands/task-observer-status.md", bundle.namelist())
-            for old_name in ["apply", "review", "status"]:
-                self.assertNotIn("commands/" + old_name + ".md", bundle.namelist())
-            self.assertIn("hooks/session-start.py", bundle.namelist())
-            for file in (self.repo / "references").glob("*"):
-                self.assertEqual(bundle.read("upstream/task-observer/references/" + file.name), file.read_bytes())
-            self.assertEqual(bundle.read("LICENSE"), (ROOT / "LICENSE").read_bytes())
-        self.build()
-        self.assertEqual(first, archive.read_bytes())
+    def test_startup_bootstraps_preserves_real_log_and_requests_original_protocol(self):
+        output = startup.startup_context(self.home, 'darwin', self.base, {})
+        pool = self.home / 'Developer/task-observer'
+        observation = pool / 'skill-observations/observation-log/0001-fixture.md'
+        observation.write_text('Synthetic preservation fixture\n')
+        startup.startup_context(self.home, 'darwin', self.base, {})
+        self.assertEqual(observation.read_text(), 'Synthetic preservation fixture\n')
+        self.assertEqual((pool / 'skill-observations/last-review-date.txt').read_text(), 'never\n')
+        self.assertTrue((pool / 'skill-updates').is_dir())
+        self.assertFalse((pool / 'skill-observations/.plugin').exists())
+        self.assertFalse((pool / 'skill-observations/starter-principles-reviewed.txt').exists())
+        context = output['hookSpecificOutput']['additionalContext']
+        self.assertIn('task-observer:task-observer', context)
+        self.assertIn('Session Start Protocol', context)
 
-    def test_schema_regression_stops_build(self):
-        path = self.repo / ".claude-plugin/plugin.json"
-        manifest = json.loads(path.read_text())
-        manifest["$schema"] = "https://json.schemastore.org/claude-code-plugin-manifest.json"
-        path.write_text(json.dumps(manifest))
-        with self.assertRaisesRegex(ValueError, "Unsupported upload manifest keys"):
-            self.build()
+    def test_plan_mode_and_missing_cloud_mount_do_not_create_a_false_pool(self):
+        startup.startup_context(self.home, 'darwin', self.base, {'permission_mode': 'plan'})
+        self.assertFalse((self.home / 'Developer').exists())
+        output = startup.startup_context(self.home, 'linux', self.base, {}, str(self.base / 'not-mounted'))
+        self.assertIn('Runtime path unresolved', output['hookSpecificOutput']['additionalContext'])
+        self.assertFalse((self.home / 'Developer').exists())
 
-    def test_source_manifest_does_not_implicitly_load_the_live_protocol(self):
-        manifest = json.loads((self.repo / ".claude-plugin/plugin.json").read_text())
-        self.assertEqual(manifest["skills"], [])
-        for name in ['review', 'apply', 'status']:
-            command = (self.repo / 'commands' / ('task-observer-' + name + '.md')).read_text()
-            self.assertIn('disable-model-invocation: true', command)
-
-    def test_packaged_capture_is_passive_and_original_skill_is_unchanged(self):
-        lock = json.loads((self.repo / 'upstream-skill.json').read_text())
-        original = {name: (self.repo / name).read_bytes() for name in lock['files']}
-        self.build()
-        plugin = self.repo / 'dist/plugin'
-        home = Path(self.temp.name) / 'home'
-        home.mkdir()
-        workspace = home / 'Developer/task-observer'
-        env = {**os.environ, 'HOME': str(home), 'CLAUDE_PLUGIN_ROOT': str(plugin),
-               'TASK_OBSERVER_WORKSPACE': str(workspace)}
-        payload = json.dumps({'hook_event_name': 'SessionStart', 'source': 'startup',
-                              'session_id': 'fixture', 'transcript_path': str(home / 'session.jsonl')})
-        result = subprocess.run(['/bin/bash', str(plugin / 'integration/observer.sh'), 'capture'],
-                                input=payload, env=env, text=True, capture_output=True, check=True)
-        self.assertEqual(result.stdout, '')  # No Skill invocation, question or protocol context.
-        if sys.platform == 'darwin':
-            sources = list((workspace / 'skill-observations/.plugin/sources').glob('*.json'))
-            self.assertEqual(len(sources), 1)
-            self.assertFalse((workspace / 'skill-observations/starter-principles-reviewed.txt').exists())
-        self.assertEqual(original, {name: (self.repo / name).read_bytes() for name in lock['files']})
-        with zipfile.ZipFile(self.repo / 'dist/task-observer.zip') as bundle:
-            for name, data in original.items():
-                self.assertEqual(bundle.read('upstream/task-observer/' + name), data)
-                self.assertEqual((plugin / 'upstream/task-observer' / name).read_bytes(), data)
-
-    def test_upstream_edit_prevents_a_new_build(self):
-        path = self.repo / 'SKILL.md'
-        path.write_text(path.read_text() + '\nAn accidental behavioral edit.\n')
-        with self.assertRaisesRegex(ValueError, 'Upstream skill content mismatch'):
-            self.build()
-
-    def test_added_upstream_reference_prevents_a_new_build(self):
-        (self.repo / 'references/custom-instructions.md').write_text('Keep integration outside the skill.\n')
-        with self.assertRaisesRegex(ValueError, 'Upstream skill membership mismatch'):
-            self.build()
-
-    def test_stale_starter_metadata_cannot_trigger_the_wrong_reconciliation(self):
-        path = self.repo / 'upstream-skill.json'
-        lock = json.loads(path.read_text())
-        lock['starter_set_version'] += 1
-        path.write_text(json.dumps(lock))
-        with self.assertRaisesRegex(ValueError, 'starter set version mismatch'):
-            self.build()
-
-    def test_plugin_version_is_independent_of_the_upstream_skill_version(self):
-        path = self.repo / '.claude-plugin/plugin.json'
-        manifest = json.loads(path.read_text())
-        manifest['version'] = '3.8.5'
-        path.write_text(json.dumps(manifest))
-        self.build()
-        with zipfile.ZipFile(self.repo / 'dist/task-observer.zip') as bundle:
-            self.assertEqual(json.loads(bundle.read('.claude-plugin/plugin.json'))['version'], '3.8.5')
-            self.assertIn(b'version: "3.8.0"', bundle.read('upstream/task-observer/SKILL.md'))
-        self.assertEqual(builder.verify_upstream_skill(self.repo)['upstream_version'], '3.8.0')
-
-    def test_missing_hook_is_not_silently_omitted(self):
-        (self.repo / "hooks/session-start.py").unlink()
-        with self.assertRaisesRegex(ValueError, "Missing startup integration"):
-            self.build()
-
-    def test_changed_hook_invalidates_existing_archive(self):
-        self.build()
-        path = self.repo / "hooks/session-start.py"
-        path.write_text(path.read_text() + "\n# Changed after build\n")
-        with self.assertRaisesRegex(ValueError, "content mismatch"):
-            builder.verify(self.repo, self.repo / "dist/task-observer.zip")
-
-    def test_missing_archived_reference_is_rejected(self):
-        self.build()
-        archive = self.repo / "dist/task-observer.zip"
-        with zipfile.ZipFile(archive) as bundle:
-            files = {n: bundle.read(n) for n in bundle.namelist() if not n.endswith("references/signals.md")}
-        with zipfile.ZipFile(archive, "w") as bundle:
-            for name, data in files.items():bundle.writestr(name, data)
-        with self.assertRaisesRegex(ValueError, "membership mismatch"):
-            builder.verify(self.repo, archive)
-
-    def test_existing_source_change_invalidates_archive(self):
-        self.build()
-        path = self.repo / "references/signals.md"
-        path.write_text(path.read_text() + "\nAdditional source content\n")
-        with self.assertRaisesRegex(ValueError, "content mismatch"):
-            builder.verify(self.repo, self.repo / "dist/task-observer.zip")
-
-    def test_symlinked_source_is_rejected(self):
-        path = self.repo / "references/signals.md"
-        path.unlink()
-        path.symlink_to(ROOT / "references/signals.md")
-        with self.assertRaisesRegex(ValueError, "Symlink in source"):
-            self.build()
-
-    def test_unresolved_upload_readme_link_is_rejected(self):
-        path = self.repo / "DESKTOP-PLUGIN.md"
-        path.write_text(path.read_text() + "\n[Missing guide](missing-guide.md)\n")
-        with self.assertRaisesRegex(ValueError, "Unresolved upload README link"):
-            self.build()
-
-    def test_unmanaged_staging_content_is_preserved(self):
-        staging = self.repo / "dist/plugin"
-        staging.mkdir(parents=True)
-        sentinel = staging / "keep.txt"
-        sentinel.write_text("unrelated content\n")
-        with self.assertRaisesRegex(ValueError, "unmanaged staging path"):
-            self.build()
-        self.assertEqual(sentinel.read_text(), "unrelated content\n")
+    def test_one_patch_check_zip_install_and_local_push(self):
+        repo = self.base / 'owned-repo'
+        repo.mkdir()
+        def git(*args):
+            return installer.run(['git', *args], repo)
+        git('init', '-b', 'main')
+        git('config', 'user.name', 'Synthetic fixture')
+        git('config', 'user.email', 'fixture@example.test')
+        skill = repo / 'skills/example'
+        skill.mkdir(parents=True)
+        before = '---\nname: example\ndescription: Synthetic fixture\n---\nPrefer contractions\n'
+        after = before.replace('Prefer contractions', 'Use full English forms')
+        (skill / 'SKILL.md').write_text(before)
+        (repo / '.gitignore').write_text('/dist/\n')
+        (repo / 'check.py').write_text("from pathlib import Path\nassert 'Use full English forms' in Path('skills/example/SKILL.md').read_text()\n")
+        (repo / 'build.py').write_text("from pathlib import Path\nfrom zipfile import ZipFile\nPath('dist').mkdir(exist_ok=True)\nwith ZipFile('dist/example.zip','w') as z: z.write('skills/example/SKILL.md','skills/example/SKILL.md')\n")
+        git('add', '.')
+        git('commit', '-m', 'Synthetic fixture baseline')
+        copy = self.base / 'existing-install'
+        shutil.copytree(skill, copy)
+        (skill / 'SKILL.md').write_text(after)
+        patch = self.base / 'reviewed.patch'
+        patch.write_text(git('diff', '--', 'skills/example') + '\n')
+        (skill / 'SKILL.md').write_text(before)
+        remote = self.base / 'remote.git'
+        subprocess.run(['git', 'init', '--bare', str(remote)], check=True, capture_output=True)
+        git('remote', 'add', 'origin', str(remote))
+        result = installer.install({'ownership': 'user', 'repo': str(repo), 'patch': str(patch),
+            'paths': ['skills/example'], 'checks': [[sys.executable, 'check.py']],
+            'build': [[sys.executable, 'build.py']], 'artifacts': ['dist/example.zip'],
+            'installs': [{'source': 'skills/example', 'destination': str(copy)}],
+            'publish': {'remote': 'origin', 'branch': 'main', 'message': 'Apply synthetic approved change'}})
+        self.assertEqual((copy / 'SKILL.md').read_text(), after)
+        self.assertTrue(zipfile.is_zipfile(repo / 'dist/example.zip'))
+        self.assertEqual(result['commit'], installer.run(['git', '--git-dir', str(remote), 'rev-parse', 'main'], repo))
+        self.assertEqual(git('status', '--porcelain'), '')
+        self.assertTrue(result['pushed'])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

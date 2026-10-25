@@ -1,8 +1,8 @@
 # Claude Code / Desktop compatibility fork
 
-Maintained by Burak Tasci. **Plugin/installer 3.8.4, candidate 5; upstream skill 3.8.0 remains entirely unchanged.** This candidate uses passive source collection and explicit `/task-observer-review`, `/task-observer-apply` and `/task-observer-status` commands. It installs no ordinary-work gate or scheduled job. An approved custom installer handles owned source/install/Git/ZIP mechanics after a hash-bound question-card approval. See [candidate installation and coverage](DESKTOP-PLUGIN.md) and [integration workflow](integration/WORKFLOW.md). All 15 upstream files are pinned in [upstream-skill.json](upstream-skill.json). The build rejects drift.
+Maintained by Burak Tasci. **Plugin 3.8.4, candidate 6; original skill 3.8.0 unchanged.** The original Task Observer is discoverable again and handles its own observation, review and staging. A single SessionStart helper bootstraps the shared folder and requests the skill; a small install helper completes explicitly approved source/install/Git/ZIP updates using existing repository tools. There are no custom slash commands, passive transcript collector, batch/cursor store, approval-receipt system, Stop/write gates or scheduler.
 
-The upstream README follows for methodology and attribution. Its live activation/manual-install guidance describes the original distribution; this candidate intentionally uses the separate passive integration described above. Final 3.8.4 publication is pending live acceptance.
+See [installation and live checks](DESKTOP-PLUGIN.md) and the [approved installation extension](integration/INSTALL.md). All 15 upstream files remain pinned in [upstream-skill.json](upstream-skill.json). The final 3.8.4 release awaits live acceptance in Cowork and Code. The original README follows.
 
 # task-observer - One Skill to Rule Them All
 
