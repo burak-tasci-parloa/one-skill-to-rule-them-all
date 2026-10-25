@@ -65,5 +65,6 @@
       "sha256": "35bd1118ff73280ff16387abb6bc3da4f56c82d05e1bdb5bc09182cac93fae8d",
       "mode": "0644"
     }
-  }
+  },
+  "starter_set_version": 4
 }

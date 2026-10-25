@@ -46,6 +46,10 @@ def verify_upstream_skill(repo):
     version = re.search(r'^version:\s*"([^"]+)"\s*$', (repo / "SKILL.md").read_text(), re.MULTILINE)
     if not version or version.group(1) != lock["skill_version"]:
         raise ValueError("Upstream skill version mismatch")
+    starter = re.search(r'^Starter set version:\s*(\d+)\s*$',
+                        (repo / "references/starter-principles.md").read_text(), re.MULTILINE)
+    if not starter or lock.get("starter_set_version") != int(starter.group(1)):
+        raise ValueError("Upstream starter set version mismatch")
     return {"upstream_version": lock["skill_version"], "commit": lock["commit"],
             "files": len(sources), "all_files_byte_identical": True}
 

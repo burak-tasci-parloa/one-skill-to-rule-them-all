@@ -83,6 +83,12 @@ class DesktopPackageTests(unittest.TestCase):
         else:
             self.assertIn('systemMessage', output)  # Unconnected Cowork needs a grant.
         context = output["hookSpecificOutput"]["additionalContext"]
+        self.assertLessEqual(len(context), 10000)
+        reports = list((workspace / 'skill-observations/.plugin/startup-scans').glob('*.txt'))
+        if reports:
+            self.assertEqual(len(reports), 1)
+            self.assertIn(str(reports[0]), context)
+            context = reports[0].read_text()
         self.assertIn(str(plugin / "skills/task-observer/scripts/skill-load.sh"), context)
         self.assertIn("template of v3.8.0", context)
         self.assertIn('Task Observer plugin 3.8.4', context)
@@ -104,6 +110,14 @@ class DesktopPackageTests(unittest.TestCase):
     def test_added_upstream_reference_prevents_a_new_build(self):
         (self.repo / 'references/custom-instructions.md').write_text('Keep integration outside the skill.\n')
         with self.assertRaisesRegex(ValueError, 'Upstream skill membership mismatch'):
+            self.build()
+
+    def test_stale_starter_metadata_cannot_trigger_the_wrong_reconciliation(self):
+        path = self.repo / 'upstream-skill.json'
+        lock = json.loads(path.read_text())
+        lock['starter_set_version'] += 1
+        path.write_text(json.dumps(lock))
+        with self.assertRaisesRegex(ValueError, 'starter set version mismatch'):
             self.build()
 
     def test_plugin_version_is_independent_of_the_upstream_skill_version(self):

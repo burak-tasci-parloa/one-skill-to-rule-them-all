@@ -32,14 +32,14 @@ class StartupHookTests(unittest.TestCase):
         root = root or self.workspace
         (root / "skill-observations/observation-log").mkdir(parents=True)
         (root / "skill-updates").mkdir()
-        (root / "skill-observations/cross-cutting-principles.md").write_text("# Principles\n")
+        (root / "skill-observations/cross-cutting-principles.md").write_text("# Principles\n\n## Active Principles\n")
         (root / "skill-observations/last-review-date.txt").write_text("never\n")
         return root
 
     def observation(self, name="0001-test", status="open", root=None, body=""):
         root = root or self.workspace
         path = root / "skill-observations/observation-log" / (name + ".md")
-        path.write_text("---\nstatus: " + status + "\ntitle: Fixture\n---\n" + body)
+        path.write_text("---\nid: " + str(int(name.split("-")[0])) + "\nstatus: " + status + "\ntitle: Fixture\n---\n" + body)
         return path
 
     def context(self, **kwargs):
@@ -150,6 +150,7 @@ class StartupHookTests(unittest.TestCase):
             self.assertEqual(date_file.read_text(), date)
         for date in ["2026-10-19", "2026-10-23", "2026-10-25"]:
             date_file.write_text(date)
+            (self.workspace / 'skill-observations/reviews' / date).mkdir(parents=True, exist_ok=True)
             self.assertNotIn("Offer the original review once", self.context())
 
     def test_only_open_headers_count_not_body_or_archive(self):
@@ -209,18 +210,18 @@ class StartupHookTests(unittest.TestCase):
         self.assertEqual(list((directory / 'observation-log').glob('*.md')), [])
         self.assertFalse((directory / 'starter-principles-reviewed.txt').exists())
         self.assertIn('workspace: created=', (directory / 'checkpoints.log').read_text())
-        self.assertNotIn('session-start scan:', (directory / 'checkpoints.log').read_text())
+        self.assertIn('session-start scan:', (directory / 'checkpoints.log').read_text())
         self.assertEqual(hook.read_pin(self.workspace)['host_workspace'], str(self.workspace))
         self.assertIn('0 OPEN observations', output['hookSpecificOutput']['additionalContext'])
 
-    def test_repeated_startup_preserves_existing_files_and_has_no_setup_writes(self):
+    def test_repeated_startup_preserves_core_files_and_only_adds_real_scan_checkpoints(self):
         hook.startup_context(ROOT, self.home, 'darwin', self.other)
         self.observation(body='Original observation\n')
         principles = self.workspace / 'skill-observations/cross-cutting-principles.md'
-        principles.write_text('# Existing adopted principles\n')
-        before = {p: (p.read_bytes(), p.stat().st_mtime_ns) for p in self.workspace.rglob('*') if p.is_file()}
+        principles.write_text('# Existing adopted principles\n\n## Active Principles\n')
+        before = {p: (p.read_bytes(), p.stat().st_mtime_ns) for p in self.workspace.rglob('*') if p.is_file() and p.name != 'checkpoints.log' and '.plugin' not in p.parts}
         hook.startup_context(ROOT, self.home, 'darwin', self.other)
-        after = {p: (p.read_bytes(), p.stat().st_mtime_ns) for p in self.workspace.rglob('*') if p.is_file()}
+        after = {p: (p.read_bytes(), p.stat().st_mtime_ns) for p in self.workspace.rglob('*') if p.is_file() and p.name != 'checkpoints.log' and '.plugin' not in p.parts}
         self.assertEqual(before, after)
 
     def test_parallel_first_sessions_create_one_pool_and_one_setup_trace(self):
@@ -248,7 +249,7 @@ class StartupHookTests(unittest.TestCase):
         output = hook.startup_context(ROOT, self.home, 'linux', self.other)
         self.assertFalse(self.workspace.exists())
         self.assertIn('systemMessage', output)
-        self.assertIn('--initialize-workspace', output['hookSpecificOutput']['additionalContext'])
+        self.assertIn('--start-workspace', output['hookSpecificOutput']['additionalContext'])
 
     def test_cowork_granted_alias_can_be_initialized_and_reused(self):
         alias = self.base / 'mounted host folder'

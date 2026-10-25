@@ -1,0 +1,33 @@
+{
+  "plugin_version": "3.8.4",
+  "candidate": 3,
+  "upstream_skill_version": "3.8.0",
+  "status": "candidate; awaiting new live Cowork and Claude Code acceptance",
+  "base_upstream_commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+  "all_15_upstream_skill_files_byte_identical": true,
+  "custom_changes_outside_skill": true,
+  "build_rejects_upstream_drift": true,
+  "tests_passed": 61,
+  "registered_hook_events": [
+    "SessionStart"
+  ],
+  "original_scan_executed_by_installer": true,
+  "real_scan_checkpoint_verified_in_fixtures": true,
+  "complete_output_delivery_inline_or_private_file": true,
+  "no_scan_output_truncated": true,
+  "model_skill_load_and_per_skill_lookup_still_required": true,
+  "starter_choices_and_review_dates_never_fabricated": true,
+  "no_stop_or_per_tool_enforcement_added": true,
+  "strict_source_plugin_validation": true,
+  "strict_upload_plugin_validation": true,
+  "source_zip_upstream_byte_parity": true,
+  "reproducible_build": true,
+  "scheduled_jobs_created": 0,
+  "global_instruction_files_edited": false,
+  "zip_sha256": "bd0e02b2001978b4e93ecb32a3f94257cd0d8880f09e22667a4de5fd8295ae26",
+  "zip_file": "task-observer-3.8.4-candidate-3.zip",
+  "archive_files": 22,
+  "live_cowork_activation_verified": false,
+  "live_claude_code_activation_verified": false,
+  "frontmatter_validation": "Original upstream validator; structural fallback because PyYAML is not installed."
+}
