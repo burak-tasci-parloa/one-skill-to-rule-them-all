@@ -1,0 +1,68 @@
+{
+  "version": "3.8.3",
+  "status": "candidate; awaiting live Cowork and Claude Code acceptance",
+  "base_upstream_tag": "v3.8.0",
+  "base_upstream_commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+  "skill_body_preserved_except_version": true,
+  "all_five_upstream_helpers_unchanged": true,
+  "reference_changes": [
+    "activation template version",
+    "two obsolete Cowork hook-support statements"
+  ],
+  "tests_passed": 30,
+  "strict_source_plugin_validation": true,
+  "strict_upload_plugin_validation": true,
+  "desktop_discovery": [
+    {
+      "distribution": "source",
+      "scan_paths": [
+        "skills",
+        "./"
+      ],
+      "skills": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "distribution": "plugin_zip",
+      "scan_paths": [
+        "skills",
+        "./skills/task-observer"
+      ],
+      "skills": [
+        "skills/task-observer/SKILL.md"
+      ]
+    }
+  ],
+  "registered_hook_events": [
+    "SessionStart"
+  ],
+  "scheduled_jobs_created": 0,
+  "workspace_policy": "One user-scope pool at ~/Developer/task-observer on the user computer; verify mounted aliases before writes; no cloud-home fallback.",
+  "global_instruction_files_edited": false,
+  "hook_command_benchmark": {
+    "scope": "This Mac, hook command only. Includes Python startup; excludes model/skill execution and remote device I/O.",
+    "cases": [
+      {
+        "fixture_observations": 0,
+        "runs": 10,
+        "median_ms": 31.57,
+        "p95_ms": 118.32,
+        "context_characters": 9070
+      },
+      {
+        "fixture_observations": 1000,
+        "runs": 10,
+        "median_ms": 58.7,
+        "p95_ms": 66.54,
+        "context_characters": 9155
+      }
+    ]
+  },
+  "reproducible_build": true,
+  "archive_source_parity": true,
+  "zip_sha256": "eb2a3e8a164e3b20fc7b6a430cd814ccc39e16a0ae57ef10ac0f7c6455852eb9",
+  "live_cowork_activation_verified": false,
+  "live_claude_code_activation_verified": false,
+  "frontmatter_validation": "Upstream structural fallback; PyYAML is not installed. Original quoted YAML is preserved except version."
+}

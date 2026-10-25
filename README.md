@@ -1,4 +1,4 @@
-> Desktop compatibility fork of [Eoghan Henn / Rebelytics' v3.8.0](https://github.com/rebelytics/one-skill-to-rule-them-all/releases/tag/v3.8.0), maintained by Burak Tasci. The fork's 3.8.2 package removes unsupported manifest metadata and adds a reproducible plugin ZIP for Claude Desktop. See [Desktop installation and changes](DESKTOP-PLUGIN.md). Original attribution and CC BY 4.0 licensing are retained. The upstream README follows.
+> Cowork and Claude Code compatibility fork of [Eoghan Henn / Rebelytics' v3.8.0](https://github.com/rebelytics/one-skill-to-rule-them-all/releases/tag/v3.8.0), maintained by Burak Tasci. Version 3.8.3 adds explicit skill discovery and a plugin-bundled SessionStart hook that delivers the original activation block. See [installation, storage and verification](DESKTOP-PLUGIN.md). Other enforcement hooks and scheduled jobs are not enabled. Original attribution and CC BY 4.0 licensing are retained. The upstream README follows.
 
 # task-observer - One Skill to Rule Them All
 

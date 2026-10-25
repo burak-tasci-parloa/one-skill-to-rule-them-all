@@ -34,6 +34,15 @@ def expected_members(repo):
         "README.md": ((repo / "DESKTOP-PLUGIN.md").read_bytes(), 0o644),
         "LICENSE": ((repo / "LICENSE").read_bytes(), 0o644),
     }
+    for item in sorted((repo / "hooks").rglob("*")):
+        if item.is_symlink():
+            raise ValueError(f"Symlink in source: {item}")
+        if item.is_file() and not any(p in EXCLUDED for p in item.relative_to(repo).parts) and item.suffix != ".pyc":
+            mode = 0o755 if item.stat().st_mode & 0o111 else 0o644
+            members[item.relative_to(repo).as_posix()] = (item.read_bytes(), mode)
+    for required in ["hooks/hooks.json", "hooks/session-start.sh", "hooks/session-start.py"]:
+        if required not in members:
+            raise ValueError(f"Missing startup integration: {required}")
     sources = [repo / "SKILL.md", repo / "LICENSE"]
     for folder in [repo / "references", repo / "scripts"]:
         for item in sorted(folder.rglob("*")):

@@ -1,8 +1,10 @@
 """Checks protect Desktop upload compatibility and complete skill delivery."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
 import unittest
 import zipfile
@@ -19,7 +21,7 @@ class DesktopPackageTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.repo = Path(self.temp.name) / "source"
         self.repo.mkdir()
-        for name in [".claude-plugin", "references", "scripts"]:
+        for name in [".claude-plugin", "references", "scripts", "hooks"]:
             shutil.copytree(ROOT / name, self.repo / name)
         for name in ["SKILL.md", "LICENSE", "DESKTOP-PLUGIN.md"]:
             shutil.copy2(ROOT / name, self.repo / name)
@@ -37,6 +39,9 @@ class DesktopPackageTests(unittest.TestCase):
             self.assertEqual(manifest["skills"], ["./skills/task-observer"])
             self.assertIn("skills/task-observer/SKILL.md", bundle.namelist())
             self.assertNotIn("SKILL.md", bundle.namelist())
+            hooks = json.loads(bundle.read("hooks/hooks.json"))["hooks"]
+            self.assertEqual(set(hooks), {"SessionStart"})
+            self.assertIn("hooks/session-start.py", bundle.namelist())
             for file in (self.repo / "references").glob("*"):
                 self.assertEqual(bundle.read("skills/task-observer/references/" + file.name), file.read_bytes())
             self.assertEqual(bundle.read("LICENSE"), (ROOT / "LICENSE").read_bytes())
@@ -50,6 +55,43 @@ class DesktopPackageTests(unittest.TestCase):
         path.write_text(json.dumps(manifest))
         with self.assertRaisesRegex(ValueError, "Unsupported upload manifest keys"):
             self.build()
+
+    def test_source_manifest_explicitly_exposes_the_root_skill(self):
+        manifest = json.loads((self.repo / ".claude-plugin/plugin.json").read_text())
+        self.assertEqual(manifest["skills"], ["./"])
+        discovered = [self.repo / p / "SKILL.md" for p in manifest["skills"]
+                      if (self.repo / p / "SKILL.md").is_file()]
+        self.assertEqual(len(discovered), 1)
+
+    def test_packaged_hook_uses_the_packaged_skill_directory(self):
+        self.build()
+        plugin = self.repo / "dist/plugin"
+        home = Path(self.temp.name) / "home"
+        home.mkdir()
+        workspace = home / "Developer/task-observer"
+        env = {**os.environ, "HOME": str(home), "CLAUDE_PLUGIN_ROOT": str(plugin),
+               "TASK_OBSERVER_WORKSPACE": str(workspace)}
+        result = subprocess.run(["/bin/bash", str(plugin / "hooks/session-start.sh")],
+                                input='{"source":"startup"}', env=env, text=True,
+                                capture_output=True, check=True)
+        output = json.loads(result.stdout)
+        self.assertNotIn("systemMessage", output)
+        context = output["hookSpecificOutput"]["additionalContext"]
+        self.assertIn(str(plugin / "skills/task-observer/scripts/skill-load.sh"), context)
+        self.assertIn("template of v3.8.3", context)
+        self.assertFalse(workspace.exists())
+
+    def test_missing_hook_is_not_silently_omitted(self):
+        (self.repo / "hooks/session-start.py").unlink()
+        with self.assertRaisesRegex(ValueError, "Missing startup integration"):
+            self.build()
+
+    def test_changed_hook_invalidates_existing_archive(self):
+        self.build()
+        path = self.repo / "hooks/session-start.py"
+        path.write_text(path.read_text() + "\n# Changed after build\n")
+        with self.assertRaisesRegex(ValueError, "content mismatch"):
+            builder.verify(self.repo, self.repo / "dist/task-observer.zip")
 
     def test_missing_archived_reference_is_rejected(self):
         self.build()

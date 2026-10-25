@@ -1,0 +1,17 @@
+{
+  "description": "Task Observer startup activation. No stop or write-blocking hooks.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
