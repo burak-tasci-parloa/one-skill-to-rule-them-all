@@ -1,0 +1,18 @@
+{
+  "plugin": "task-observer",
+  "version": "3.8.4",
+  "candidate": 7,
+  "scope": "Startup instruction clarification only, plus candidate labels/documentation",
+  "archive": "task-observer-3.8.4-candidate-7.zip",
+  "sha256": "3668551c501e3471e051aa08b089bfc98f11612e844e5db4b552fae94027d306",
+  "original_files": 15,
+  "original_bytes_and_modes_unchanged": true,
+  "hook_registration_and_installer_unchanged": true,
+  "existing_targeted_tests": {
+    "passed": 2,
+    "seconds": 0.019
+  },
+  "build_and_archive_verification": "passed",
+  "model_follows_revised_instruction": "pending live Cowork/Code acceptance",
+  "final_release_published": false
+}

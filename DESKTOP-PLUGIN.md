@@ -1,16 +1,18 @@
-# Task Observer 3.8.4, candidate 6
+# Task Observer 3.8.4, candidate 7
 
 **Original skill + small startup helper + approved installation helper.** All 15 upstream v3.8.0 files, pinned to `ac00bed07526475a6679a3dc018e145f5e0a672f`, retain their exact bytes and modes. The skill is visible under `skills/task-observer/` in the ZIP. There are no three extra commands or candidate 4/5 collection, batch, cursor, approval-receipt or demo subsystems.
 
 ## Install and use
 
-Replace the previous Task Observer plugin with this ZIP and start a new session. Cowork should show the original `task-observer` skill. Claude Code uses its native qualified name, `/task-observer:task-observer`. For an exact Code test, disable an older active copy and launch `claude --plugin-dir /absolute/task-observer-3.8.4-candidate-6.zip`. The fork's default branch may be older; an unpinned marketplace install is not proof of this candidate.
+Replace the previous Task Observer plugin with this ZIP and start a new session. Cowork should show the original `task-observer` skill. Claude Code uses its native qualified name, `/task-observer:task-observer`. For an exact Code test, disable an older active copy and launch `claude --plugin-dir /absolute/task-observer-3.8.4-candidate-7.zip`. The fork's default branch may be older; an unpinned marketplace install is not proof of this candidate.
 
 Only SessionStart is registered. It locates the shared **~/Developer/task-observer** folder, reuses the original idempotent Workspace creation command if writable and requests the original skill and protocol. Missing folder access remains visible, while normal work continues. No CLAUDE.md change, extra settings hook or scheduler is required. No mandatory tool/Stop gate is installed. Skill invocation and adherence remain model decisions, not a guarantee made by this hook.
 
 The same original skill handles observations, starter choices, scans, per-skill lookups, review offers and findings. Ask it naturally to review observations or explain status. Do not infer that the complete original protocol ran merely because the skill is listed or the startup helper returned.
 
 ## Shared storage and permissions
+
+Candidate 7 changes only the startup instruction: a request to preserve project files does not revoke separately approved Observer bookkeeping. Even when all writes are forbidden, the skill must still be loaded/read; disallowed write steps stay pending. No runtime code, hooks or installer behavior changes.
 
 Existing observations, principles, review dates and registration are preserved. A VM needs the real host folder grant and mapping; its HOME is never substituted for the user's pool. If first setup is needed through a granted VM alias, the agent uses `hooks/session-start.py --initialize <runtime-path> --host-workspace <actual-host-path>` based on folder grant metadata. Access must be granted by the user; installation cannot bypass that. Plan mode does not initialize storage.
 
