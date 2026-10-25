@@ -20,6 +20,36 @@ ALLOWED_KEYS = {"name", "displayName", "description", "version", "author",
 EXCLUDED = {".git", "__pycache__", ".DS_Store"}
 
 
+def verify_upstream_skill(repo):
+    """Keep upstream bytes and versions independent of this plugin's version."""
+    repo = Path(repo).resolve()
+    lock = json.loads((repo / "upstream-skill.json").read_text())
+    if lock.get("format") != 1 or not re.fullmatch(r"[0-9a-f]{40}", lock.get("commit", "")):
+        raise ValueError("Invalid upstream skill lock")
+    sources = {"SKILL.md", "LICENSE"}
+    for folder in [repo / "references", repo / "scripts"]:
+        for item in folder.rglob("*"):
+            if item.is_symlink():
+                raise ValueError(f"Symlink in source: {item}")
+            if item.is_file() and not any(p in EXCLUDED for p in item.relative_to(repo).parts) and item.suffix != ".pyc":
+                sources.add(item.relative_to(repo).as_posix())
+    if sources != set(lock["files"]):
+        raise ValueError("Upstream skill membership mismatch")
+    for name, expected in lock["files"].items():
+        item = repo / name
+        if item.is_symlink():
+            raise ValueError(f"Symlink in source: {item}")
+        if not item.is_file() or hashlib.sha256(item.read_bytes()).hexdigest() != expected["sha256"]:
+            raise ValueError(f"Upstream skill content mismatch: {name}")
+        if item.stat().st_mode & 0o777 != int(expected["mode"], 8):
+            raise ValueError(f"Upstream skill permissions mismatch: {name}")
+    version = re.search(r'^version:\s*"([^"]+)"\s*$', (repo / "SKILL.md").read_text(), re.MULTILINE)
+    if not version or version.group(1) != lock["skill_version"]:
+        raise ValueError("Upstream skill version mismatch")
+    return {"upstream_version": lock["skill_version"], "commit": lock["commit"],
+            "files": len(sources), "all_files_byte_identical": True}
+
+
 def expected_members(repo):
     repo = Path(repo).resolve()
     manifest = json.loads((repo / ".claude-plugin/plugin.json").read_text())
@@ -28,11 +58,13 @@ def expected_members(repo):
         raise ValueError(f"Unsupported upload manifest keys: {sorted(unknown)}")
     if manifest.get("name") != PLUGIN:
         raise ValueError("Unexpected plugin identity")
+    verify_upstream_skill(repo)
     manifest["skills"] = [f"./skills/{PLUGIN}"]
     members = {
         ".claude-plugin/plugin.json": ((json.dumps(manifest, indent=2) + "\n").encode(), 0o644),
         "README.md": ((repo / "DESKTOP-PLUGIN.md").read_bytes(), 0o644),
         "LICENSE": ((repo / "LICENSE").read_bytes(), 0o644),
+        "upstream-skill.json": ((repo / "upstream-skill.json").read_bytes(), 0o644),
     }
     for item in sorted((repo / "hooks").rglob("*")):
         if item.is_symlink():
@@ -124,8 +156,13 @@ def build(repo, output=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--verify", action="store_true")
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--verify", action="store_true")
+    action.add_argument("--check-upstream", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    result = verify(root, root / "dist/task-observer.zip") if args.verify else build(root)
+    if args.check_upstream:
+        result = verify_upstream_skill(root)
+    else:
+        result = verify(root, root / "dist/task-observer.zip") if args.verify else build(root)
     print(json.dumps(result, indent=2))

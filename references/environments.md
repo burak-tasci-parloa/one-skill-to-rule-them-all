@@ -90,9 +90,9 @@ knowingly; do not assume any of the middle ones is a guarantee.
 4. **Harness hook** (the only enforced option). A session-start hook that
    injects the instruction — and ideally the log state — into context on
    every session, e.g. Claude Code's `SessionStart` hook returning
-   `hookSpecificOutput.additionalContext`. Hooks can prepare storage and inject a
-   prompt; choosing to invoke a skill remains a model decision. Cowork now
-   supports plugin-bundled hooks; verify activation separately in each host.
+   `hookSpecificOutput.additionalContext`. Even a hook can only inject a
+   prompt; choosing to invoke a skill remains a model decision. Cowork has
+   no hook mechanism; there, tiers 1 to 3 are all there is.
 
 **Porting this skill to another host asks the inverse question first:
 what is the destination's activation model, and can it express an
@@ -144,7 +144,7 @@ skill that never loads cannot announce that it was relevant.
 ### The activation block
 
 ```text
-(task-observer activation block — template of v3.8.4)
+(task-observer activation block — template of v3.8.0)
 Before the first tool call of any session — and before writing or
 proposing a plan, not merely before executing one — invoke the
 task-observer skill AND execute its Session Start Protocol (storage
@@ -1406,7 +1406,7 @@ snippet through the device shell. Never a hand-derived id.
 | Live skill files | `.claude/skills/{skill}/` on a read-only mount (writes fail with EROFS) | `~/.claude/skills/{skill}/`, ordinary writable files — no guard | n/a |
 | Present a staged file for install | the file-presentation tool (`present_files`) with its upload button | none — report the staged path and a change summary in chat | paste into the handoff doc |
 | Scheduled review | the app's scheduled tasks (cloud-default: run remotely; legacy local mode: run on the user's machine, only while it is on — see the execution-mode note above) | cron / a harness `SessionStart` hook / an account-level scheduler that can reach the workspace — headless invocations carry the workspace grant (`--add-dir`) in the task definition | calendar reminder + manual trigger |
-| Session-start hook | plugin-bundled `SessionStart` hook; verify in a new task | `SessionStart` hook (`hookSpecificOutput.additionalContext`) | none |
+| Session-start hook | none | `SessionStart` hook (`hookSpecificOutput.additionalContext`) | none |
 | Local-vs-cloud tell | `allow_cowork_file_delete` present ⇒ local session | n/a | n/a |
 
 **The Claude Code column is the terminal CLI; the desktop app has a

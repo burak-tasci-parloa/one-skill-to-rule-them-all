@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "repository": "https://github.com/rebelytics/one-skill-to-rule-them-all",
+  "ref": "v3.8.0",
+  "commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+  "skill_version": "3.8.0",
+  "files": {
+    "LICENSE": {
+      "sha256": "6b9b189c6d1f4a4ff2173f43c27883ac0f981f09d90ac71d30b4c8a9316566ad",
+      "mode": "0644"
+    },
+    "SKILL.md": {
+      "sha256": "eaa7c426bfbc41605e0fb048310c3989ce30ad33e6d4ee73195a888641baa65d",
+      "mode": "0644"
+    },
+    "references/ceilings.txt": {
+      "sha256": "2cfa58c927195c442104ffb4b72a7d60ddc30f6a0ebd4c15b0a88560e97082c0",
+      "mode": "0644"
+    },
+    "references/environments.md": {
+      "sha256": "15645ba393ee2de9c72d6f3c0dc49d7fb1be3d93f9be6ba4bb7d68dd0267d16b",
+      "mode": "0644"
+    },
+    "references/migration.md": {
+      "sha256": "88a13afb7aa51c1522e20ac1fddacf5e7cb68883477bda17494600a4193e69cc",
+      "mode": "0644"
+    },
+    "references/observation-log.md": {
+      "sha256": "fec07817d26201b648518eb1bd212eb77be24d5df036fd19cf3a902676dbf46a",
+      "mode": "0644"
+    },
+    "references/signals.md": {
+      "sha256": "6d27cdd1e80a7c86786fda25a9039bd36249967a0930fa690ac729363ef80134",
+      "mode": "0644"
+    },
+    "references/skill-authoring.md": {
+      "sha256": "b580b9f41a6efc7379ad7c6c3fee02c751e36c1d807f50222657832a9bce9c6c",
+      "mode": "0644"
+    },
+    "references/starter-principles.md": {
+      "sha256": "f25767399f7e0b21fd655da08e652deaeceac24e0efa38dfe7470ef0702351ff",
+      "mode": "0644"
+    },
+    "references/weekly-review.md": {
+      "sha256": "b54525ce9f2fdf86d0fe5f7fa4bbbf7bf5d7555cd9490e6ed2d0f99bb7d63cfd",
+      "mode": "0644"
+    },
+    "scripts/migrate-log.py": {
+      "sha256": "ce4418ecac5e12b00d4f4cce9ddc5ef5cdceb4a18988de6089a14930dd277975",
+      "mode": "0644"
+    },
+    "scripts/new-observation.sh": {
+      "sha256": "f2844d0c99b1f313477c9963a217699861086afe5b1f71ba14bafb04461bbe08",
+      "mode": "0755"
+    },
+    "scripts/session-start-scan.sh": {
+      "sha256": "e1b761fb73634d1f58f68f3b3ff67a771739c47ab5ad9236750e06843670bab7",
+      "mode": "0755"
+    },
+    "scripts/skill-load.sh": {
+      "sha256": "3546be4182e70a031ec9aebaf0c0a96c374869f28dfb4ea577473f37e178ce95",
+      "mode": "0755"
+    },
+    "scripts/validate-skill-bundle.py": {
+      "sha256": "35bd1118ff73280ff16387abb6bc3da4f56c82d05e1bdb5bc09182cac93fae8d",
+      "mode": "0644"
+    }
+  }
+}

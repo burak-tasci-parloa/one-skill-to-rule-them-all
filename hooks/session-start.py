@@ -258,10 +258,12 @@ def shell_double(path):
 
 def activation_context(plugin, home, system, cwd, override=None, mounts=None, today=None):
     skill = skill_directory(plugin)
+    plugin_version = json.loads((plugin / ".claude-plugin/plugin.json").read_text())["version"]
     text = (skill / "references/environments.md").read_text()
     block = text.split("### The activation block", 1)[1].split("```text\n", 1)[1].split("\n```", 1)[0]
     workspace, pin = resolve_workspace(plugin, home, system, cwd, override, mounts)
-    intro = ["Task Observer plugin startup: this is the equivalent activation configuration; no CLAUDE.md edit or second settings hook is required.",
+    intro = ["Task Observer plugin " + plugin_version + "; unmodified upstream skill v3.8.0. This hook is the activation configuration; no CLAUDE.md edit or second settings hook is required.",
+             "Integration compatibility note: Cowork supports this plugin's SessionStart hook. Upstream v3.8.0's reference statements saying Cowork has no hooks are historical; use this bundled hook. Storage bootstrap is performed by the integration; skill invocation and its remaining protocol are still required.",
              "This plugin registers only SessionStart. It configures no Stop/write gates or scheduled job."]
     if workspace is None:
         intro += ["The user's ONE persistent workspace is ~/Developer/task-observer ON THEIR COMPUTER. Its runtime path is unresolved, not an empty log.",

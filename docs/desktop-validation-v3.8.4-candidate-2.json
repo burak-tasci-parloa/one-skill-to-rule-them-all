@@ -1,0 +1,29 @@
+{
+  "plugin_version": "3.8.4",
+  "candidate": 2,
+  "upstream_skill_version": "3.8.0",
+  "status": "candidate; awaiting live Cowork and Claude Code acceptance",
+  "base_upstream_commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+  "all_15_upstream_skill_files_byte_identical": true,
+  "upstream_skill_version_unchanged": true,
+  "upstream_activation_template_unchanged": true,
+  "upstream_references_and_scripts_unchanged": true,
+  "custom_changes_outside_skill": true,
+  "build_rejects_upstream_drift": true,
+  "source_zip_and_upstream_byte_parity": true,
+  "bootstrap_test_preserves_installed_skill_bytes": true,
+  "tests_passed": 48,
+  "strict_source_plugin_validation": true,
+  "strict_upload_plugin_validation": true,
+  "reproducible_build": true,
+  "registered_hook_events": [
+    "SessionStart"
+  ],
+  "scheduled_jobs_created": 0,
+  "global_instruction_files_edited": false,
+  "zip_sha256": "ef3e65a8c38881351373ef4e09f9bd9de88f2e5c1356c7ba1ade8fa99c96e338",
+  "zip_file": "task-observer-3.8.4-candidate-2.zip",
+  "live_cowork_activation_verified": false,
+  "live_claude_code_activation_verified": false,
+  "frontmatter_validation": "Original upstream validator; structural fallback because PyYAML is not installed."
+}
