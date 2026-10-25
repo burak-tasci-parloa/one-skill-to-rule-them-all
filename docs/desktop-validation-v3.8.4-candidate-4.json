@@ -1,0 +1,67 @@
+{
+  "plugin": "task-observer",
+  "version": "3.8.4",
+  "candidate": 4,
+  "release_state": "candidate only; final release awaits live acceptance in both hosts",
+  "archive": "task-observer-3.8.4-candidate-4.zip",
+  "archive_sha256": "fcaaa760ddadcf3e6c8b57adbbffb1de008ce2cbf7e212c593cfe2af212d4aef",
+  "archive_files": 32,
+  "upstream": {
+    "version": "3.8.0",
+    "commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+    "files": 15,
+    "byte_and_mode_identical": true
+  },
+  "unit_tests": {
+    "passed": 84,
+    "failed": 0
+  },
+  "validations": {
+    "source-validation": {
+      "success": true,
+      "strict": true,
+      "errors": [],
+      "manifest_warnings": []
+    },
+    "upload-validation": {
+      "success": true,
+      "strict": true,
+      "errors": [],
+      "manifest_warnings": []
+    },
+    "plugin-manifest": {
+      "success": true,
+      "strict": true,
+      "errors": [],
+      "manifest_warnings": []
+    }
+  },
+  "nonblocking_advice": [
+    "Plugin icon missing",
+    "No unpinned marketplace install recommendation while default branch is older"
+  ],
+  "native_runtime_probe": {
+    "runtime": "2.1.310",
+    "commands_discovered": [
+      "task-observer:apply",
+      "task-observer:review",
+      "task-observer:status"
+    ],
+    "ordinary_response": "READY",
+    "source_pointer_written": true,
+    "original_live_protocol_not_exposed": true,
+    "model": "local fake HTTP server; no real model/API billing",
+    "human_approval_tested": false,
+    "real_model_review_tested": false
+  },
+  "coverage": {
+    "temporary_source_install_zip_local_git_remote": "passed",
+    "approval_event_shaped_fixture": "passed; not a human approval",
+    "rollback_resume_stale_plan_scope_isolation": "passed",
+    "real_model_review": "not tested",
+    "live_human_approval_hook": "not tested",
+    "cowork_candidate_4": "not tested",
+    "github_release_publication_from_installer": "not live tested",
+    "ordinary_work": "no PreToolUse or Stop gates; no automatic model review; no scheduler"
+  }
+}

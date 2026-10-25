@@ -22,7 +22,7 @@ class DesktopPackageTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.repo = Path(self.temp.name) / "source"
         self.repo.mkdir()
-        for name in [".claude-plugin", "references", "scripts", "hooks"]:
+        for name in [".claude-plugin", "references", "scripts", "hooks", "integration", "commands"]:
             shutil.copytree(ROOT / name, self.repo / name)
         for name in ["SKILL.md", "LICENSE", "DESKTOP-PLUGIN.md", "upstream-skill.json"]:
             shutil.copy2(ROOT / name, self.repo / name)
@@ -37,14 +37,18 @@ class DesktopPackageTests(unittest.TestCase):
         with zipfile.ZipFile(archive) as bundle:
             manifest = json.loads(bundle.read(".claude-plugin/plugin.json"))
             self.assertNotIn("$schema", manifest)
-            self.assertEqual(manifest["skills"], ["./skills/task-observer"])
-            self.assertIn("skills/task-observer/SKILL.md", bundle.namelist())
+            self.assertEqual(manifest["skills"], [])
+            self.assertIn("upstream/task-observer/SKILL.md", bundle.namelist())
             self.assertNotIn("SKILL.md", bundle.namelist())
             hooks = json.loads(bundle.read("hooks/hooks.json"))["hooks"]
-            self.assertEqual(set(hooks), {"SessionStart"})
+            self.assertEqual(set(hooks), {"SessionStart", "UserPromptSubmit", "Stop", "PostToolUse"})
+            self.assertTrue(hooks["Stop"][0]["hooks"][0]["async"])
+            self.assertNotIn("PreToolUse", hooks)
+            self.assertIn("commands/review.md", bundle.namelist())
+            self.assertIn("commands/apply.md", bundle.namelist())
             self.assertIn("hooks/session-start.py", bundle.namelist())
             for file in (self.repo / "references").glob("*"):
-                self.assertEqual(bundle.read("skills/task-observer/references/" + file.name), file.read_bytes())
+                self.assertEqual(bundle.read("upstream/task-observer/references/" + file.name), file.read_bytes())
             self.assertEqual(bundle.read("LICENSE"), (ROOT / "LICENSE").read_bytes())
         self.build()
         self.assertEqual(first, archive.read_bytes())
@@ -57,49 +61,37 @@ class DesktopPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported upload manifest keys"):
             self.build()
 
-    def test_source_manifest_explicitly_exposes_the_root_skill(self):
+    def test_source_manifest_does_not_implicitly_load_the_live_protocol(self):
         manifest = json.loads((self.repo / ".claude-plugin/plugin.json").read_text())
-        self.assertEqual(manifest["skills"], ["./"])
-        discovered = [self.repo / p / "SKILL.md" for p in manifest["skills"]
-                      if (self.repo / p / "SKILL.md").is_file()]
-        self.assertEqual(len(discovered), 1)
+        self.assertEqual(manifest["skills"], [])
+        for name in ['review', 'apply', 'status']:
+            command = (self.repo / 'commands' / (name + '.md')).read_text()
+            self.assertIn('disable-model-invocation: true', command)
 
-    def test_packaged_hook_uses_the_packaged_skill_directory(self):
+    def test_packaged_capture_is_passive_and_original_skill_is_unchanged(self):
         lock = json.loads((self.repo / 'upstream-skill.json').read_text())
         original = {name: (self.repo / name).read_bytes() for name in lock['files']}
         self.build()
-        plugin = self.repo / "dist/plugin"
-        home = Path(self.temp.name) / "home"
+        plugin = self.repo / 'dist/plugin'
+        home = Path(self.temp.name) / 'home'
         home.mkdir()
-        workspace = home / "Developer/task-observer"
-        env = {**os.environ, "HOME": str(home), "CLAUDE_PLUGIN_ROOT": str(plugin),
-               "TASK_OBSERVER_WORKSPACE": str(workspace)}
-        result = subprocess.run(["/bin/bash", str(plugin / "hooks/session-start.sh")],
-                                input='{"source":"startup"}', env=env, text=True,
-                                capture_output=True, check=True)
-        output = json.loads(result.stdout)
+        workspace = home / 'Developer/task-observer'
+        env = {**os.environ, 'HOME': str(home), 'CLAUDE_PLUGIN_ROOT': str(plugin),
+               'TASK_OBSERVER_WORKSPACE': str(workspace)}
+        payload = json.dumps({'hook_event_name': 'SessionStart', 'source': 'startup',
+                              'session_id': 'fixture', 'transcript_path': str(home / 'session.jsonl')})
+        result = subprocess.run(['/bin/bash', str(plugin / 'integration/observer.sh'), 'capture'],
+                                input=payload, env=env, text=True, capture_output=True, check=True)
+        self.assertEqual(result.stdout, '')  # No Skill invocation, question or protocol context.
         if sys.platform == 'darwin':
-            self.assertNotIn("systemMessage", output)
-        else:
-            self.assertIn('systemMessage', output)  # Unconnected Cowork needs a grant.
-        context = output["hookSpecificOutput"]["additionalContext"]
-        self.assertLessEqual(len(context), 10000)
-        reports = list((workspace / 'skill-observations/.plugin/startup-scans').glob('*.txt'))
-        if reports:
-            self.assertEqual(len(reports), 1)
-            self.assertIn(str(reports[0]), context)
-            context = reports[0].read_text()
-        self.assertIn(str(plugin / "skills/task-observer/scripts/skill-load.sh"), context)
-        self.assertIn("template of v3.8.0", context)
-        self.assertIn('Task Observer plugin 3.8.4', context)
-        self.assertEqual(workspace.exists(), sys.platform == 'darwin')
-        if sys.platform == 'darwin':
-            self.assertTrue((workspace / 'skill-observations/plugin-activation.json').is_file())
+            sources = list((workspace / 'skill-observations/.plugin/sources').glob('*.json'))
+            self.assertEqual(len(sources), 1)
+            self.assertFalse((workspace / 'skill-observations/starter-principles-reviewed.txt').exists())
         self.assertEqual(original, {name: (self.repo / name).read_bytes() for name in lock['files']})
         with zipfile.ZipFile(self.repo / 'dist/task-observer.zip') as bundle:
             for name, data in original.items():
-                self.assertEqual(bundle.read('skills/task-observer/' + name), data)
-                self.assertEqual((plugin / 'skills/task-observer' / name).read_bytes(), data)
+                self.assertEqual(bundle.read('upstream/task-observer/' + name), data)
+                self.assertEqual((plugin / 'upstream/task-observer' / name).read_bytes(), data)
 
     def test_upstream_edit_prevents_a_new_build(self):
         path = self.repo / 'SKILL.md'
@@ -128,7 +120,7 @@ class DesktopPackageTests(unittest.TestCase):
         self.build()
         with zipfile.ZipFile(self.repo / 'dist/task-observer.zip') as bundle:
             self.assertEqual(json.loads(bundle.read('.claude-plugin/plugin.json'))['version'], '3.8.5')
-            self.assertIn(b'version: "3.8.0"', bundle.read('skills/task-observer/SKILL.md'))
+            self.assertIn(b'version: "3.8.0"', bundle.read('upstream/task-observer/SKILL.md'))
         self.assertEqual(builder.verify_upstream_skill(self.repo)['upstream_version'], '3.8.0')
 
     def test_missing_hook_is_not_silently_omitted(self):

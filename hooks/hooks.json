@@ -1,5 +1,5 @@
 {
-  "description": "Task Observer startup activation. No stop or write-blocking hooks.",
+  "description": "Passive source pointers and explicit review approvals. No tool or Stop gates, model calls or scheduler.",
   "hooks": {
     "SessionStart": [
       {
@@ -7,8 +7,42 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
-            "timeout": 15
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/integration/observer.sh\" capture",
+            "timeout": 8
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/integration/observer.sh\" capture",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/integration/observer.sh\" capture",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/integration/observer.sh\" capture",
+            "timeout": 2
           }
         ]
       }

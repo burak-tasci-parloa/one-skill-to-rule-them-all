@@ -1,9 +1,9 @@
 {
   "name": "task-observer",
   "displayName": "Task Observer \u2014 One Skill to Rule Them All",
-  "description": "Observes agent work sessions and turns recurring friction, corrections and judgement calls into proposed skill improvements and new skill candidates, with a human review gate.",
+  "description": "Candidate 4: passive work evidence collection, explicit original-method review and approval-bound source/install/Git/ZIP updates.",
   "version": "3.8.4",
-  "skills": ["./"],
+  "skills": [],
   "author": {
     "name": "Eoghan Henn",
     "url": "https://rebelytics.com"

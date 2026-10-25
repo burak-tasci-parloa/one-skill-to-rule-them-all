@@ -1,4 +1,8 @@
-> Cowork and Claude Code compatibility wrapper of [Eoghan Henn / Rebelytics' v3.8.0](https://github.com/rebelytics/one-skill-to-rule-them-all/releases/tag/v3.8.0), maintained by Burak Tasci. **Plugin/installer 3.8.4, candidate 3; upstream skill 3.8.0, entirely unmodified.** The separate SessionStart installer prepares approved storage, executes the original startup scan and delivers its complete results plus the original activation template. Oversized results are saved intact for an explicit first-batch read. Every upstream skill file is pinned in [upstream-skill.json](upstream-skill.json); the build rejects drift. See [installation, storage and verification](DESKTOP-PLUGIN.md). For this plugin, the bundled hook replaces the manual CLAUDE.md activation step in the upstream README below. No additional enforcement hooks or scheduled jobs are enabled. Original attribution and CC BY 4.0 licensing are retained. The upstream README follows.
+# Claude Code / Desktop compatibility fork
+
+Maintained by Burak Tasci. **Plugin/installer 3.8.4, candidate 4; upstream skill 3.8.0 remains entirely unchanged.** This candidate uses passive source collection and explicit `/task-observer:review`, `/task-observer:apply` and `/task-observer:status` commands. It installs no ordinary-work gate or scheduled job. An approved custom installer handles owned source/install/Git/ZIP mechanics after a hash-bound question-card approval. See [candidate installation and coverage](DESKTOP-PLUGIN.md) and [integration workflow](integration/WORKFLOW.md). All 15 upstream files are pinned in [upstream-skill.json](upstream-skill.json). The build rejects drift.
+
+The upstream README follows for methodology and attribution. Its live activation/manual-install guidance describes the original distribution; this candidate intentionally uses the separate passive integration described above. Final 3.8.4 publication is pending live acceptance.
 
 # task-observer - One Skill to Rule Them All
 

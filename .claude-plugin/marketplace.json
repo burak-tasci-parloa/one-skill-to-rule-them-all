@@ -22,5 +22,6 @@
         "feedback-loop"
       ]
     }
-  ]
+  ],
+  "description": "Task Observer compatibility package with passive collection, original review and approved installation."
 }

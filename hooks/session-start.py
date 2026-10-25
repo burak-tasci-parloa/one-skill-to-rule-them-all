@@ -20,7 +20,7 @@ WORKSPACE_ITEMS = ["skill-observations/observation-log", "skill-observations/obs
 
 
 def skill_directory(plugin):
-    candidates = [p for p in [plugin, plugin / "skills/task-observer"]
+    candidates = [p for p in [plugin, plugin / "skills/task-observer", plugin / "upstream/task-observer"]
                   if (p / "SKILL.md").is_file()]
     if len(candidates) != 1:
         raise ValueError("expected exactly one complete task-observer skill")
