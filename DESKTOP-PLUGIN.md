@@ -1,10 +1,10 @@
-# Task Observer 3.8.3: Cowork and Claude Code
+# Task Observer 3.8.4: Cowork and Claude Code
 
 This compatibility fork is based on upstream **v3.8.0**, commit `ac00bed07526475a6679a3dc018e145f5e0a672f`. It preserves Eoghan Henn / Rebelytics' observer methodology and adds the packaging and startup integration described here. It is not an upstream release or endorsement. Each build has a separate validation record: static validation is not evidence of live activation.
 
 ## Install once from Cowork
 
-Use the named **task-observer.zip** provided with the candidate build or the [fork's releases](https://github.com/burak-tasci-parloa/one-skill-to-rule-them-all/releases). Check that its manifest version is **3.8.3**. In Claude Desktop, open Customize > Plugins > Add > Upload plugin and upload this ZIP. GitHub's automatic source archives and the upstream `.skill` bundle are different distributions.
+Use the named **task-observer.zip** provided with the candidate build or the [fork's releases](https://github.com/burak-tasci-parloa/one-skill-to-rule-them-all/releases). Check that its manifest version is **3.8.4**. In Claude Desktop, open Customize > Plugins > Add > Upload plugin and upload this ZIP. GitHub's automatic source archives and the upstream `.skill` bundle are different distributions.
 
 Start a new Cowork task. With the same Claude account, start Claude Code again so the account plugin syncs; account sync requires Claude Code 2.1.273 or later. `/reload-plugins` can reload a plugin that has already synced. Keep only one active Task Observer: replace/disable an older account upload and disable a separate, older CLI installation before the live check. Do not add another physical skill copy under `~/.claude/skills`.
 
@@ -16,17 +16,21 @@ Only **SessionStart** is registered: startup, resume, clear, compact and fork. I
 
 The hook resolves the skill inside either distribution, reads the original activation block directly from `references/environments.md`, substitutes the resolved paths, and adds it to the session context with the open-observation count and last-review date. The full block remains intact, including per-skill lookups, controller/subagent boundaries, observation creation and post-task closure. It is not replaced by a short startup reminder. Output over the host's 10,000-character limit is rejected explicitly, never silently shortened.
 
-The hook itself does **not** create observations, checkpoints or review timestamps. Claude must invoke the skill and execute its original Session Start Protocol. Successful hook output proves only that context was delivered, not that the model followed it.
+On native macOS, the hook now initializes the approved storage itself before the model runs. It executes the exact Workspace creation command extracted from `references/observation-log.md`, creates the staging directory, and records the host-folder registration. The original command writes its genuine setup checkpoint and initializes the review date to `never`. It does not write observations, scan checkpoints, a completed review date, or a starter-principles decision. Claude must still invoke the skill and execute the original Session Start Protocol; storage initialization does not prove observation is active.
 
-The first protocol run creates the workspace with the original procedure, checks existing pins/logs and non-interactive consumers, and offers the original starter-principles choice. It must not silently import them. After initialization, it records the shared-folder registration using the integration helper; this writes only private metadata at `skill-observations/plugin-activation.json`, without editing instructions, settings, skills or schedules.
+Setup is idempotent and protected by a workspace-local lock: concurrent first sessions create one pool and one setup trace. Existing core files and observations are preserved. A preflight checks nearby existing stores, instruction-file pins and configured observer hooks; a conflicting root, legacy/split log, redirect marker or unsafe file type pauses setup for reconciliation. This bounded preflight does not replace the original protocol's broader pin/consumer inventory. Plan mode does not initialize storage. No instruction file, global settings, extra hook or schedule is edited.
+
+In Cowork, the plugin requests the required host-folder access itself when the persistent pool is not reachable. If the child folder does not exist, grant the user's `Developer` parent and let the bundled helper create `task-observer` beneath the verified mount. The user should not need to type a setup prompt or run the helper manually. A project-only read-only restriction does not prohibit the separately approved observer storage; a ban on all writes, missing permission or a decline is respected and reported as incomplete setup. The hook emits a visible pending-setup notice so skipped initialization is not mistaken for success.
 
 The command supplied in startup context is:
 
 ```sh
-bash "<installed-plugin-root>/hooks/session-start.sh" --register-workspace "<resolved-runtime-root>"
+bash "<installed-plugin-root>/hooks/session-start.sh" --initialize-workspace "<resolved-runtime-root>"
 ```
 
-For a mounted Cowork alias, also pass `--host-workspace "<absolute-path-on-the-user-computer>"`. Run registration on the filesystem holding the persistent folder. If the helper is only in the cloud container, follow the upstream digest-matched staging procedure rather than treating a cloud-only path as a device path.
+For a mounted Cowork alias, also pass `--host-workspace "<absolute-path-on-the-user-computer>"`, verified from the folder grant. Run the bundled helper against that persistent mount. With device-only tools, stage the complete integration bundle (including its skill and references) with the original digest checks before running on the device; the Python wrapper alone is not a standalone installer. The earlier `--register-workspace` operation remains available for already initialized stores.
+
+The first actual protocol run still offers the original starter-principles choice and optional history backfill. Neither is accepted or imported automatically. Removing/replacing the plugin leaves the external pool intact.
 
 ## One persistent pool
 
@@ -34,7 +38,9 @@ The approved user-scope workspace is **`~/Developer/task-observer` on the user's
 
 On macOS, the hook resolves the preferred path from the user's home directory. Cowork can expose the same folder through a different runtime alias. A reachable registration identifies a candidate alias; the Session Start Protocol must verify its host-folder mapping before writes. A registration is data, not proof of a mount. Multiple conflicting registrations require reconciliation, not automatic consolidation.
 
-In an unconnected or cloud session, the hook does not expand the container's home directory into a second pool. It supplies setup instructions and the original block, with unresolved paths clearly marked for resolution through the device tools or folder connection. An unavailable folder is never reported as a clean backlog of zero. A folder grant may be needed once or when the session has no connection. When the device is unavailable, retain the original handoff/report-back behavior; do not claim persistent logging succeeded.
+In an unconnected or cloud session, the hook does not expand the container's home directory into a second pool. It supplies the original block and explicit access/setup instructions, with unresolved paths clearly marked. Subsequent sessions can discover the registered child through a grant to its parent. An unavailable folder is never reported as a clean backlog of zero. A folder grant may be needed once per machine or when a session has no connection. When the device is unavailable, retain the original handoff/report-back behavior; do not claim persistent logging succeeded.
+
+Use the same ZIP on another Mac: the native default derives from that user's home directory, and Cowork resolves its own granted alias. No username or machine path is baked into the bundle. Each machine has its own local pool unless the user separately arranges synchronization; this plugin installs none.
 
 `TASK_OBSERVER_WORKSPACE` remains an explicit absolute-path override, compatible with upstream helper usage. Do not use it to point into a skill directory, plugin cache, worktree or disposable session storage. Configure the same physical pool in both hosts, then verify it through actual reads/writes across them.
 
@@ -44,17 +50,17 @@ The original review offer is unchanged: when OPEN observations exist and the las
 
 Stop, observation-creation and skill-writing gates remain examples in the original reference; none are installed. Changes to live skills still require the original review/staging and human-installation process. No startup hook applies skill improvements automatically.
 
-The original [user guide](https://github.com/rebelytics/one-skill-to-rule-them-all/blob/v3.8.0/USER-GUIDE.md) and [environment reference](https://github.com/rebelytics/one-skill-to-rule-them-all/blob/v3.8.0/references/environments.md) describe the full methodology. This fork corrects only the environment reference's outdated Cowork hook-support statements and template version. Current Anthropic documentation lists plugin-bundled hooks for both Cowork and Claude Code.
+The original [user guide](https://github.com/rebelytics/one-skill-to-rule-them-all/blob/v3.8.0/USER-GUIDE.md) and [environment reference](https://github.com/rebelytics/one-skill-to-rule-them-all/blob/v3.8.0/references/environments.md) describe the full methodology. The environment reference changes only its template version, outdated Cowork hook-support statements and the clarification that hooks can prepare storage while skill invocation remains a model decision. Current Anthropic documentation lists plugin-bundled hooks for both Cowork and Claude Code.
 
 ## Verify in both hosts
 
 1. Confirm one `task-observer` skill is discoverable from the source and upload, including in Cowork's `/` menu.
-2. Open a **fresh Cowork task** with ordinary work that names neither the observer nor the log. Verify the skill invocation and actual protocol execution, not just its listing or a manually requested call.
-3. Open a **fresh Claude Code session** with unrelated ordinary work and collect the same evidence.
+2. Test a **fresh Cowork task** before any setup prompt: confirm the plugin requests missing folder access and initializes the granted persistent pool. Then verify actual skill invocation and protocol execution on ordinary work. A project-read-only task must not cause a silent skip; an explicit all-writes denial must be honored.
+3. Open a **fresh Claude Code session** with unrelated ordinary work: verify automatic native storage initialization and actual protocol execution. Confirm the loaded version is 3.8.4, rather than inferring it from a menu entry.
 4. Confirm each host reads the same physical workspace and sees the other host's genuine startup checkpoint. A matching copied registration alone is insufficient.
 5. Check resume/compaction startup context as well. A failed or unreachable setup must remain visibly incomplete.
 
-Candidate ZIP delivery precedes these live checks. Publish the final 3.8.3 GitHub release only after both hosts pass. Do not describe a manifest check, helper unit test or manual invocation as a live activation test.
+Candidate ZIP delivery precedes these live checks. Publish the final 3.8.4 GitHub release only after both hosts pass. Do not describe a manifest check, helper unit test or manual invocation as a live activation test.
 
 ## Build and verify
 

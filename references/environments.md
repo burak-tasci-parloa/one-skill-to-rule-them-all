@@ -90,7 +90,7 @@ knowingly; do not assume any of the middle ones is a guarantee.
 4. **Harness hook** (the only enforced option). A session-start hook that
    injects the instruction — and ideally the log state — into context on
    every session, e.g. Claude Code's `SessionStart` hook returning
-   `hookSpecificOutput.additionalContext`. Even a hook can only inject a
+   `hookSpecificOutput.additionalContext`. Hooks can prepare storage and inject a
    prompt; choosing to invoke a skill remains a model decision. Cowork now
    supports plugin-bundled hooks; verify activation separately in each host.
 
@@ -144,7 +144,7 @@ skill that never loads cannot announce that it was relevant.
 ### The activation block
 
 ```text
-(task-observer activation block — template of v3.8.3)
+(task-observer activation block — template of v3.8.4)
 Before the first tool call of any session — and before writing or
 proposing a plan, not merely before executing one — invoke the
 task-observer skill AND execute its Session Start Protocol (storage

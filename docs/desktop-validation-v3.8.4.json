@@ -1,0 +1,53 @@
+{
+  "version": "3.8.4",
+  "status": "candidate; awaiting live Cowork and Claude Code acceptance",
+  "base_upstream_tag": "v3.8.0",
+  "base_upstream_commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+  "supersedes_candidate": "3.8.3",
+  "skill_body_preserved_except_version": true,
+  "all_five_upstream_helpers_unchanged": true,
+  "reference_changes": [
+    "activation template version",
+    "two obsolete Cowork hook-support statements",
+    "hooks can prepare storage while skill invocation remains a model decision"
+  ],
+  "tests_passed": 45,
+  "strict_source_plugin_validation": true,
+  "strict_upload_plugin_validation": true,
+  "registered_hook_events": [
+    "SessionStart"
+  ],
+  "automatic_native_storage_initialization": true,
+  "cold_cowork_requires_verified_folder_grant": true,
+  "other_machine_uses_runtime_home": true,
+  "setup_is_idempotent_and_locked": true,
+  "legacy_conflicting_or_redirected_stores_pause_setup": true,
+  "no_synthetic_observations_or_scan_checkpoints": true,
+  "scheduled_jobs_created": 0,
+  "global_instruction_files_edited": false,
+  "reproducible_build": true,
+  "archive_source_parity": true,
+  "zip_sha256": "705ec20c08bdb268e292ce901cae9b0e4971ea4a546725cc0509e84b27d29713",
+  "live_cowork_activation_verified": false,
+  "live_claude_code_activation_verified": false,
+  "frontmatter_validation": "Upstream structural fallback; PyYAML is not installed.",
+  "setup_benchmark": {
+    "scope": "Isolated fixture storage on this Mac; not a live Cowork or Claude Code session.",
+    "cold_setup_ms": [
+      10.0,
+      8.61,
+      8.12,
+      7.6,
+      7.87
+    ],
+    "ready_start_ms": [
+      0.88,
+      0.94,
+      0.85,
+      0.83,
+      0.95
+    ],
+    "cold_setup_median_ms": 8.12,
+    "ready_start_median_ms": 0.88
+  }
+}

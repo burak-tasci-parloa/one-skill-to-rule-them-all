@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -78,8 +79,10 @@ class DesktopPackageTests(unittest.TestCase):
         self.assertNotIn("systemMessage", output)
         context = output["hookSpecificOutput"]["additionalContext"]
         self.assertIn(str(plugin / "skills/task-observer/scripts/skill-load.sh"), context)
-        self.assertIn("template of v3.8.3", context)
-        self.assertFalse(workspace.exists())
+        self.assertIn("template of v3.8.4", context)
+        self.assertEqual(workspace.exists(), sys.platform == 'darwin')
+        if sys.platform == 'darwin':
+            self.assertTrue((workspace / 'skill-observations/plugin-activation.json').is_file())
 
     def test_missing_hook_is_not_silently_omitted(self):
         (self.repo / "hooks/session-start.py").unlink()
