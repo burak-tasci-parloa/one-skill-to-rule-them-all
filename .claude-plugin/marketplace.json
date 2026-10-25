@@ -1,16 +1,14 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "one-skill-to-rule-them-all",
+  "name": "one-skill-to-rule-them-all-desktop",
   "owner": {
-    "name": "Eoghan Henn",
-    "url": "https://rebelytics.com"
+    "name": "Burak Tasci"
   },
   "plugins": [
     {
       "name": "task-observer",
       "source": {
         "source": "github",
-        "repo": "rebelytics/one-skill-to-rule-them-all"
+        "repo": "burak-tasci-parloa/one-skill-to-rule-them-all"
       },
       "description": "Observes agent work sessions and turns recurring friction, corrections and judgement calls into proposed skill improvements and new skill candidates, with a human review gate.",
       "category": "productivity",

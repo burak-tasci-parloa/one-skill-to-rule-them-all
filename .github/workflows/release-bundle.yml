@@ -21,7 +21,12 @@ jobs:
           python3 scripts/validate-skill-bundle.py /tmp/bundle/task-observer --pack /tmp/bundle/task-observer.skill
           # Same bundle, PyYAML forced absent: the fallback branch must pass what the parser passes
           python3 -c "import sys, runpy; sys.modules['yaml'] = None; sys.argv = ['validate-skill-bundle.py', '/tmp/bundle/task-observer']; runpy.run_path('scripts/validate-skill-bundle.py', run_name='__main__')"
+      - name: Build and verify Desktop plugin
+        run: |
+          python3 tools/build_desktop_plugin.py
+          python3 tools/build_desktop_plugin.py --verify
+          python3 -m unittest discover -s tests
       - name: Attach to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.event.release.tag_name }}" /tmp/bundle/task-observer.skill --clobber --repo "$GITHUB_REPOSITORY"
+        run: gh release upload "${{ github.event.release.tag_name }}" /tmp/bundle/task-observer.skill dist/task-observer.zip dist/task-observer.zip.sha256 --clobber --repo "$GITHUB_REPOSITORY"
