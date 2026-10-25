@@ -1,7 +1,7 @@
 {
   "name": "task-observer",
   "displayName": "Task Observer \u2014 One Skill to Rule Them All",
-  "description": "Candidate 7: unchanged Task Observer skill, a SessionStart bootstrap and a small approved-install helper.",
+  "description": "Candidate 8: unchanged Task Observer, direct original startup scan and approved-install helper.",
   "version": "3.8.4",
   "skills": [
     "./"

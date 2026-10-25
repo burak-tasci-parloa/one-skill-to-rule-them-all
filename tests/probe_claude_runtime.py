@@ -67,14 +67,17 @@ def probe(binary, plugin):
             assert result.returncode == 0, {'code': result.returncode, 'stderr': result.stderr[-2000:]}
             assert requests, 'no local fake-model request received'
             serialized = json.dumps(requests)
-            assert 'Load the registered ORIGINAL task-observer skill' in serialized, 'startup context missing'
+            assert 'load the registered original task-observer skill' in serialized.lower(), 'startup context missing'
             assert 'Monitors task execution for skill improvement' in serialized, 'original skill metadata missing'
             pool = home / 'Developer/task-observer'
             assert (pool / 'skill-observations/observation-log').is_dir(), 'bootstrap did not run'
+            assert 'session-start scan: files=0' in (pool / 'skill-observations/checkpoints.log').read_text(), 'original scan did not run'
+            assert 'end of scan' in serialized, 'original scan output was not delivered'
             assert not (pool / 'skill-observations/.plugin').exists(), 'old collection state was created'
             return {'runtime': init.get('claude_code_version'), 'skill_discovered': expected,
                     'extra_observer_commands': [], 'startup_context_delivered': True,
                     'workspace_initialized': True, 'model': 'local fake HTTP server; no real model/API billing',
+                    'original_scan_checkpoint_and_output_verified': True,
                     'actual_model_skill_invocation_tested': False, 'human_approval_tested': False,
                     'real_model_review_tested': False}
     finally:

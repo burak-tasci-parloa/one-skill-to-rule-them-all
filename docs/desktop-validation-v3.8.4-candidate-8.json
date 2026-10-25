@@ -1,0 +1,30 @@
+{
+  "plugin": "task-observer",
+  "version": "3.8.4",
+  "candidate": 8,
+  "scope": "Directly run original session-start-scan.sh from the existing SessionStart helper; deliver actual output",
+  "archive": "task-observer-3.8.4-candidate-8.zip",
+  "sha256": "26d667a673d60aa4aae454c89be3437637130366fde00b57b40833ad2b6a5512",
+  "original_files": 15,
+  "original_bytes_and_modes_unchanged": true,
+  "hook_registration_and_installer_unchanged": true,
+  "existing_targeted_tests": {
+    "passed": 2,
+    "seconds": 0.122
+  },
+  "native_zip_probe": {
+    "runtime": "2.1.310",
+    "skill_discovered": "task-observer:task-observer",
+    "extra_observer_commands": [],
+    "startup_context_delivered": true,
+    "workspace_initialized": true,
+    "model": "local fake HTTP server; no real model/API billing",
+    "original_scan_checkpoint_and_output_verified": true,
+    "actual_model_skill_invocation_tested": false,
+    "human_approval_tested": false,
+    "real_model_review_tested": false
+  },
+  "build_and_archive_verification": "passed",
+  "remaining_model_protocol_and_live_cowork_acceptance": "pending",
+  "final_release_published": false
+}

@@ -1,6 +1,6 @@
 # Claude Code / Desktop compatibility fork
 
-Maintained by Burak Tasci. **Plugin 3.8.4, candidate 7; original skill 3.8.0 unchanged.** The original Task Observer is discoverable again and handles its own observation, review and staging. A single SessionStart helper bootstraps the shared folder and requests the skill; a small install helper completes explicitly approved source/install/Git/ZIP updates using existing repository tools. There are no custom slash commands, passive transcript collector, batch/cursor store, approval-receipt system, Stop/write gates or scheduler.
+Maintained by Burak Tasci. **Plugin 3.8.4, candidate 8; original skill 3.8.0 unchanged.** The original Task Observer is discoverable again and handles its own observation, review and staging. A single SessionStart helper bootstraps the shared folder, runs the original startup scan and requests the skill; a small install helper completes explicitly approved source/install/Git/ZIP updates using existing repository tools. There are no custom slash commands, passive transcript collector, batch/cursor store, approval-receipt system, Stop/write gates or scheduler.
 
 See [installation and live checks](DESKTOP-PLUGIN.md) and the [approved installation extension](integration/INSTALL.md). All 15 upstream files remain pinned in [upstream-skill.json](upstream-skill.json). The final 3.8.4 release awaits live acceptance in Cowork and Code. The original README follows.
 

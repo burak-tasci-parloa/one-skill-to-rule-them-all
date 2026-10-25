@@ -50,9 +50,10 @@ class CriticalFlowTests(unittest.TestCase):
         output = startup.startup_context(self.home, 'darwin', self.base, {})
         pool = self.home / 'Developer/task-observer'
         observation = pool / 'skill-observations/observation-log/0001-fixture.md'
-        observation.write_text('Synthetic preservation fixture\n')
-        startup.startup_context(self.home, 'darwin', self.base, {})
-        self.assertEqual(observation.read_text(), 'Synthetic preservation fixture\n')
+        fixture = '---\nid: 1\nstatus: open\nskill: [example]\ntitle: Synthetic preservation fixture\n---\nPRIVATE BODY\n'
+        observation.write_text(fixture)
+        output = startup.startup_context(self.home, 'darwin', self.base, {})
+        self.assertEqual(observation.read_text(), fixture)
         self.assertEqual((pool / 'skill-observations/last-review-date.txt').read_text(), 'never\n')
         self.assertTrue((pool / 'skill-updates').is_dir())
         self.assertFalse((pool / 'skill-observations/.plugin').exists())
@@ -60,6 +61,10 @@ class CriticalFlowTests(unittest.TestCase):
         context = output['hookSpecificOutput']['additionalContext']
         self.assertIn('task-observer:task-observer', context)
         self.assertIn('Session Start Protocol', context)
+        self.assertIn('end of scan — files: 1', context)
+        self.assertIn('title: Synthetic preservation fixture', context)
+        self.assertNotIn('PRIVATE BODY', context)
+        self.assertIn('session-start scan: files=1', (pool / 'skill-observations/checkpoints.log').read_text())
 
     def test_plan_mode_and_missing_cloud_mount_do_not_create_a_false_pool(self):
         startup.startup_context(self.home, 'darwin', self.base, {'permission_mode': 'plan'})
