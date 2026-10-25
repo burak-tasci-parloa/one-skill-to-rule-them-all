@@ -25,7 +25,7 @@ def status(root):
             installs.append({'batch': p.parent.name, 'state': receipt.get('state', 'staged'),
                              'receipt': str(p.parent / 'APPLY.json')})
     sources = [read_json(p) for p in (base / 'sources').glob('*.json')]
-    return {'plugin_version': '3.8.4', 'candidate': 4, 'mode': 'passive',
+    return {'plugin_version': '3.8.4', 'candidate': 5, 'mode': 'passive',
             'upstream': '3.8.0, unchanged; explicit review only', 'workspace': str(root),
             'registered_sources': len(sources), 'last_capture': max((s['seen_at'] for s in sources), default=None),
             'pending_batches': pending, 'pending_installs': installs,

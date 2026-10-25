@@ -61,7 +61,7 @@ def probe(binary, plugin):
                     pass
             init = next((e for e in events if e.get('type') == 'system' and e.get('subtype') == 'init'), {})
             names = init.get('slash_commands', [])
-            expected = {'task-observer:review', 'task-observer:apply', 'task-observer:status'}
+            expected = {'task-observer:task-observer-review', 'task-observer:task-observer-apply', 'task-observer:task-observer-status'}
             assert expected.issubset(set(names)), {'missing_commands': sorted(expected - set(names)), 'stderr': result.stderr[-2000:]}
             assert 'task-observer:task-observer' not in names, 'upstream live protocol was exposed'
             assert result.returncode == 0, {'code': result.returncode, 'stderr': result.stderr[-2000:], 'last_event': events[-1] if events else None}

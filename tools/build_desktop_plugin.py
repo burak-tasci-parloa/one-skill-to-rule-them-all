@@ -80,7 +80,7 @@ def expected_members(repo):
                      "integration/observer.sh", "integration/observer.py", "integration/common.py",
                      "integration/collector.py", "integration/installer.py", "integration/WORKFLOW.md",
                      "integration/demo.py",
-                     "commands/review.md", "commands/apply.md", "commands/status.md"]:
+                     "commands/task-observer-review.md", "commands/task-observer-apply.md", "commands/task-observer-status.md"]:
         if required not in members:
             raise ValueError(f"Missing startup integration: {required}")
     sources = [repo / "SKILL.md", repo / "LICENSE"]

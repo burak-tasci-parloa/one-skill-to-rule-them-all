@@ -44,8 +44,11 @@ class DesktopPackageTests(unittest.TestCase):
             self.assertEqual(set(hooks), {"SessionStart", "UserPromptSubmit", "Stop", "PostToolUse"})
             self.assertTrue(hooks["Stop"][0]["hooks"][0]["async"])
             self.assertNotIn("PreToolUse", hooks)
-            self.assertIn("commands/review.md", bundle.namelist())
-            self.assertIn("commands/apply.md", bundle.namelist())
+            self.assertIn("commands/task-observer-review.md", bundle.namelist())
+            self.assertIn("commands/task-observer-apply.md", bundle.namelist())
+            self.assertIn("commands/task-observer-status.md", bundle.namelist())
+            for old_name in ["apply", "review", "status"]:
+                self.assertNotIn("commands/" + old_name + ".md", bundle.namelist())
             self.assertIn("hooks/session-start.py", bundle.namelist())
             for file in (self.repo / "references").glob("*"):
                 self.assertEqual(bundle.read("upstream/task-observer/references/" + file.name), file.read_bytes())
@@ -65,7 +68,7 @@ class DesktopPackageTests(unittest.TestCase):
         manifest = json.loads((self.repo / ".claude-plugin/plugin.json").read_text())
         self.assertEqual(manifest["skills"], [])
         for name in ['review', 'apply', 'status']:
-            command = (self.repo / 'commands' / (name + '.md')).read_text()
+            command = (self.repo / 'commands' / ('task-observer-' + name + '.md')).read_text()
             self.assertIn('disable-model-invocation: true', command)
 
     def test_packaged_capture_is_passive_and_original_skill_is_unchanged(self):

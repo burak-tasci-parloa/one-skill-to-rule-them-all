@@ -1,0 +1,44 @@
+{
+  "plugin": "task-observer",
+  "version": "3.8.4",
+  "candidate": 5,
+  "scope": "Rename the three command files and references only; no collection/install/hook changes",
+  "archive": "task-observer-3.8.4-candidate-5.zip",
+  "archive_sha256": "c18009c9fe659ce6f8361269916d7912ceb42513ab6ff0c9959c5fd3a51dce3b",
+  "upstream_files": 15,
+  "upstream_byte_and_mode_identical": true,
+  "focused_package_tests": {
+    "passed": 15,
+    "seconds": 1.201
+  },
+  "upload_manifest_strict_validation": true,
+  "native_zip_runtime_probe": {
+    "runtime": "2.1.310",
+    "commands_discovered": [
+      "task-observer:task-observer-apply",
+      "task-observer:task-observer-review",
+      "task-observer:task-observer-status"
+    ],
+    "ordinary_response": "READY",
+    "source_pointer_written": true,
+    "original_live_protocol_not_exposed": true,
+    "model": "local fake HTTP server; no real model/API billing",
+    "human_approval_tested": false,
+    "real_model_review_tested": false
+  },
+  "prior_candidate_4_live_test": {
+    "source": "User-provided conversation output; not independently inspected on disk",
+    "reported_success": [
+      "ordinary task unblocked",
+      "candidate 4 status",
+      "synthetic review and frozen diff",
+      "actual approval card",
+      "local install and ZIP",
+      "commit and local-remote push",
+      "publication resumed without duplicate apply"
+    ],
+    "reported_friction": "Empty Git locks required additional approval and directory delete access",
+    "host": "Not specified in supplied output; this is not acceptance evidence for both hosts"
+  },
+  "final_release_published": false
+}

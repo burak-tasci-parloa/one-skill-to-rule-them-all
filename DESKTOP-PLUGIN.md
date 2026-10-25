@@ -1,16 +1,18 @@
-# Task Observer 3.8.4, candidate 4
+# Task Observer 3.8.4, candidate 5
 
-This fork preserves **all 15 upstream v3.8.0 files byte-for-byte**, pinned to commit `ac00bed07526475a6679a3dc018e145f5e0a672f`. Plugin/installer version 3.8.4 is independent of that skill version. Candidate 4 uses **passive collection and explicit review/apply**, replacing candidate 3's mandatory live-session activation. It is a candidate, not a verified final release or upstream endorsement.
+This fork preserves **all 15 upstream v3.8.0 files byte-for-byte**, pinned to commit `ac00bed07526475a6679a3dc018e145f5e0a672f`. Plugin/installer version 3.8.4 is independent of that skill version. Candidate 5 renames candidate 4's three commands to include `task-observer-`; collection, review, approval and installation behavior are unchanged. It is a candidate, not a verified final release or upstream endorsement.
 
 ## Install and test
 
-Upload the supplied candidate-4 plugin ZIP through Claude Desktop Customize > Plugins. Replace the older Task Observer upload; do not keep two active copies or add another skill symlink. Start a new task/session. With the same account, let the upload sync to Claude Code, then restart or reload plugins. For an isolated Code test, the supported `claude --plugin-dir /absolute/candidate-4.zip` loads that exact ZIP for the session; disable the older Task Observer copy first. The fork's default branch may still hold an older release: do not install an unpinned marketplace source as proof of this candidate.
+Upload the supplied candidate-5 plugin ZIP through Claude Desktop Customize > Plugins. Replace the older Task Observer upload; do not keep two active copies or add another skill symlink. Start a new task/session. With the same account, let the upload sync to Claude Code, then restart or reload plugins. For an isolated Code test, the supported `claude --plugin-dir /absolute/candidate-5.zip` loads that exact ZIP for the session; disable the older Task Observer copy first. The fork's default branch may still hold an older release: do not install an unpinned marketplace source as proof of this candidate.
 
 The commands are:
 
-- `/task-observer:status`: capture, coverage and pending review/install status. No analysis/model call is launched by the helper.
-- `/task-observer:review`: harvest recorded evidence, use the original methodology, prepare findings and an independent staged diff. No live installation.
-- `/task-observer:apply <batch>`: show the exact plan, ask one real approval card, then automate source/install checks, configured Git publication and ZIP/release outputs.
+- `/task-observer-status`: capture, coverage and pending review/install status. No analysis/model call is launched by the helper.
+- `/task-observer-review`: harvest recorded evidence, use the original methodology, prepare findings and an independent staged diff. No live installation.
+- `/task-observer-apply <batch>`: show the exact plan, ask one real approval card, then automate source/install checks, configured Git publication and ZIP/release outputs.
+
+These are the Cowork command labels. Claude Code adds its plugin namespace: `/task-observer:task-observer-status`, `/task-observer:task-observer-review` and `/task-observer:task-observer-apply`. The old generic `apply`, `review` and `status` command files are removed. Existing batches, approvals and the shared pool are preserved.
 
 A review may use several model turns because it is a requested analysis task. No model runs per tool call or in an automatically scheduled background review. No scheduler is installed.
 
@@ -40,9 +42,9 @@ A real AskUserQuestion approval is bound to that plan's SHA256. An absent/cancel
 
 Development checks use temporary homes, synthetic conversations and temporary owned Git repositories only. They exercise capture -> evidence -> reviewed diff -> real-event-shaped approval receipt -> source/install -> ZIP -> local test remote, plus refusal/rollback/resume paths. **Synthetic fixtures do not verify model judgment or live host hook delivery.**
 
-After upload, first give ordinary work without naming Observer and confirm it completes without its questions/gates. Then run status and review on a safe recorded example. Confirm actual findings, full diff, a genuine question-card approval and a controlled test-target install. Verify both hosts load candidate 4 and exercise the actual AskUserQuestion response shape before relying on automatic apply. Final GitHub 3.8.4 release remains withheld until the agreed live checks pass.
+After upload, first give ordinary work without naming Observer and confirm it completes without its questions/gates. Then run status and review on a safe recorded example. Confirm actual findings, full diff, a genuine question-card approval and a controlled test-target install. Verify both hosts load candidate 5 and exercise the actual AskUserQuestion response shape before relying on automatic apply. Final GitHub 3.8.4 release remains withheld until the agreed live checks pass.
 
-For the isolated live test, run `/task-observer:status`, then `/task-observer:review demo`. The latter creates a synthetic conversation, disposable skill source, installation copy and local Git remote under the private demo directory. It must show the correction, evidence, full diff and returned batch ID without changing real skills or production observations. Run `/task-observer:apply <returned-batch-id>` and choose **Apply this plan** on the actual approval card. Confirm the reported source, installation, ZIP and local-remote commit checks pass. If the card does not appear or its host event is unsupported, leave apply pending and report the exact output; do not manufacture an approval receipt. Repeat in the other host.
+For the isolated live test, run `/task-observer-status`, then `/task-observer-review demo`. The latter creates a synthetic conversation, disposable skill source, installation copy and local Git remote under the private demo directory. It must show the correction, evidence, full diff and returned batch ID without changing real skills or production observations. Run `/task-observer-apply <returned-batch-id>` and choose **Apply this plan** on the actual approval card. Confirm the reported source, installation, ZIP and local-remote commit checks pass. If the card does not appear or its host event is unsupported, leave apply pending and report the exact output; do not manufacture an approval receipt. Repeat in the other host.
 
 ## Build
 
