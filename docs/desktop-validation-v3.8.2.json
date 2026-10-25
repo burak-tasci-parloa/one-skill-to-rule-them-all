@@ -1,0 +1,21 @@
+{
+  "version": "3.8.2",
+  "base_upstream_tag": "v3.8.0",
+  "base_upstream_commit": "ac00bed07526475a6679a3dc018e145f5e0a672f",
+  "unsupported_schema_field_removed": true,
+  "explicit_packaged_skill_path": "./skills/task-observer",
+  "upstream_runtime_body_preserved": true,
+  "version_markers_updated": [
+    "plugin manifest",
+    "skill frontmatter",
+    "activation template stamp"
+  ],
+  "tests_passed": 7,
+  "strict_plugin_validation": true,
+  "source_archive_parity": true,
+  "reproducible_build": true,
+  "frontmatter_validation": "Upstream structural fallback (PyYAML not installed); original quoted YAML retained except version.",
+  "live_desktop_import_tested": false,
+  "zip_sha256": "967cd9b374b04dd76782f4ef83219d1e5b3c5545c0673680f986ad6412cb4987",
+  "upload_readme_links_checked": true
+}

@@ -75,6 +75,12 @@ class DesktopPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Symlink in source"):
             self.build()
 
+    def test_unresolved_upload_readme_link_is_rejected(self):
+        path = self.repo / "DESKTOP-PLUGIN.md"
+        path.write_text(path.read_text() + "\n[Missing guide](missing-guide.md)\n")
+        with self.assertRaisesRegex(ValueError, "Unresolved upload README link"):
+            self.build()
+
     def test_unmanaged_staging_content_is_preserved(self):
         staging = self.repo / "dist/plugin"
         staging.mkdir(parents=True)

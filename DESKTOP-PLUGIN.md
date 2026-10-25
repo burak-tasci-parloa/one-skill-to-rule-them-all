@@ -1,20 +1,20 @@
 # Task Observer: Claude Desktop plugin
 
-This compatibility fork is based on upstream **v3.8.0**, commit `ac00bed07526475a6679a3dc018e145f5e0a672f`. Its plugin version is **3.8.1** and its release tag is `desktop-v3.8.1`. This is a fork-maintained compatibility patch, not an upstream release or endorsement.
+This compatibility fork is based on upstream **v3.8.0**, commit `ac00bed07526475a6679a3dc018e145f5e0a672f`. Its plugin version is **3.8.2** and its release tag is `desktop-v3.8.2`. This is a fork-maintained compatibility patch, not an upstream release or endorsement.
 
 ## Download and install
 
-Download **task-observer.zip** from [the Desktop release](https://github.com/burak-tasci-parloa/one-skill-to-rule-them-all/releases/tag/desktop-v3.8.1). Import that ZIP through Claude Desktop's plugin import interface. Replace or disable a previous Task Observer upload so there is only one selected version. GitHub's automatic source archives and upstream's `.skill` asset are different distributions; use the named plugin ZIP for this route.
+Download **task-observer.zip** from [the Desktop release](https://github.com/burak-tasci-parloa/one-skill-to-rule-them-all/releases/tag/desktop-v3.8.2). Import that ZIP through Claude Desktop's plugin import interface. Replace or disable a previous Task Observer upload so there is only one selected version. GitHub's automatic source archives and upstream's `.skill` asset are different distributions; use the named plugin ZIP for this route.
 
 The archive has `.claude-plugin/plugin.json` at its root and one complete skill under `skills/task-observer/`. It includes the original references, helper scripts, author credit and CC BY 4.0 license. No hooks, MCP servers or automatic activation settings are added.
 
-Installing the plugin does not establish that the observer runs in every session. Activation remains the upstream process documented in [USER-GUIDE.md](USER-GUIDE.md) and [references/environments.md](references/environments.md). This patch does not edit your CLAUDE.md, register schedules or choose an observation workspace. Static validation does not prove live Desktop import success.
+Installing the plugin does not establish that the observer runs in every session. Activation remains the upstream process documented in [USER-GUIDE.md](https://github.com/burak-tasci-parloa/one-skill-to-rule-them-all/blob/desktop-compat/USER-GUIDE.md) and [references/environments.md](https://github.com/burak-tasci-parloa/one-skill-to-rule-them-all/blob/desktop-compat/references/environments.md). This patch does not edit your CLAUDE.md, register schedules or choose an observation workspace. Static validation does not prove live Desktop import success.
 
 ## Changes from upstream
 
 - Removed the unsupported top-level `$schema` property from the plugin manifest and the marketplace manifest
 - Added a Desktop ZIP builder that declares `skills/task-observer` explicitly and keeps repository metadata outside the upload
-- Advanced the plugin, skill and activation-template version markers to 3.8.1; the skill body and reference content are otherwise unchanged
+- Advanced the plugin, skill and activation-template version markers to 3.8.2; the skill body and reference content are otherwise unchanged
 - Pointed fork source metadata and the separate marketplace identity at this repository
 - Added package regression checks and checksum generation
 

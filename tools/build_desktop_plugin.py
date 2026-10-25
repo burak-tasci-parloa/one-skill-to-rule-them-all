@@ -4,12 +4,14 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import stat
 import subprocess
 import sys
 import tempfile
 import zipfile
+from urllib.parse import unquote, urlsplit
 
 PLUGIN = "task-observer"
 SKILL_PREFIX = f"skills/{PLUGIN}/"
@@ -50,6 +52,10 @@ def expected_members(repo):
 
 def verify(repo, archive):
     expected = expected_members(repo)
+    for target in re.findall(r"\]\(([^)]+)\)", expected["README.md"][0].decode()):
+        link = urlsplit(target.strip().strip("<>"))
+        if not link.scheme and link.path and unquote(link.path) not in expected:
+            raise ValueError(f"Unresolved upload README link: {target}")
     with zipfile.ZipFile(archive) as bundle:
         names = bundle.namelist()
         if len(names) != len(set(names)) or set(names) != set(expected):

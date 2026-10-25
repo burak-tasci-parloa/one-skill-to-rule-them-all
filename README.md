@@ -1,4 +1,4 @@
-> Desktop compatibility fork of [Eoghan Henn / Rebelytics' v3.8.0](https://github.com/rebelytics/one-skill-to-rule-them-all/releases/tag/v3.8.0), maintained by Burak Tasci. The fork's 3.8.1 package removes unsupported manifest metadata and adds a reproducible plugin ZIP for Claude Desktop. See [Desktop installation and changes](DESKTOP-PLUGIN.md). Original attribution and CC BY 4.0 licensing are retained. The upstream README follows.
+> Desktop compatibility fork of [Eoghan Henn / Rebelytics' v3.8.0](https://github.com/rebelytics/one-skill-to-rule-them-all/releases/tag/v3.8.0), maintained by Burak Tasci. The fork's 3.8.2 package removes unsupported manifest metadata and adds a reproducible plugin ZIP for Claude Desktop. See [Desktop installation and changes](DESKTOP-PLUGIN.md). Original attribution and CC BY 4.0 licensing are retained. The upstream README follows.
 
 # task-observer - One Skill to Rule Them All
 
